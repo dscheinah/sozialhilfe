@@ -18,8 +18,12 @@
   "dependencies": {
     "average": "^0.1.0",
     "dotenv": "^8.2.0",
+    "minimist": "^1.2.5",
     "node-static": "^0.7.11",
     "shuffle-array": "^1.0.1",
     "ws": "^7.2.3"
+  },
+  "resolutions": {
+    "minimist": "1.2.5"
   }
 }
