@@ -1,0 +1,89 @@
+<template>
+  <h2>Spiel</h2>
+  <div>
+    <h3>Gewinn</h3>
+    <strong id="main-game-winner"></strong>
+    <ul id="main-game-profit" class="main-game-card-list"></ul>
+  </div>
+  <div>
+    <h3>Steuern</h3>
+    <ul id="main-game-taxes" class="main-game-card-list"></ul>
+  </div>
+  <button id="main-game-next" disabled>
+    weiter
+    <span id="main-game-timer"></span>
+  </button>
+</template>
+
+<script>
+    import {action, helper, state} from '../../js/lib/sx.js';
+    import {cards} from '../../js/mapping.js';
+
+    const reset = () => {
+        state.dispatch('loading', true);
+        [
+            '#main-game-next',
+        ].forEach(button => helper.set(button, 'disabled', true));
+        [
+            '#main-game-winner',
+            '#main-game-profit',
+            '#main-game-taxes',
+            '#main-game-timer',
+        ].forEach(element => helper.set(element, 'innerHTML', null));
+    };
+    const doForSelf = (data, callback) => {
+        data.forEach((playerData) => {
+            if (playerData.player === state.get('player-name')) {
+                callback(playerData);
+            }
+        });
+    };
+
+    state.listen('init', reset);
+    state.listen('calculate', (data) => {
+        helper.set('#main-game-winner', 'innerText', data.player);
+        let cardLists = {'#main-game-profit': 'profit', '#main-game-taxes': 'taxes'};
+        for (let id in cardLists) {
+            helper.set(id, 'innerHTML', null);
+            let list = helper.element(id);
+            data[cardLists[id]].sort().reverse().forEach((value) => {
+                let li = helper.create('li');
+                li.innerHTML = cards[value];
+                list.appendChild(li);
+            });
+        }
+    });
+    state.listen('actions', (data) => {
+        doForSelf(data, () => {
+            state.dispatch('loading', false);
+            helper.set('#main-game-next', 'disabled', false);
+        });
+    });
+    state.listen('waiting', (data) => {
+        doForSelf(data, (waiting) => {
+            helper.set('#main-game-timer', 'innerText', waiting.timeout);
+        });
+    });
+    state.listen('commit', reset);
+
+    action.listen('#main-game-next', 'click', () => {
+        state.dispatch('next');
+    });
+
+    state.listen('next', () => {
+        helper.set('#main-game-timer', 'innerHTML', null);
+        helper.set('#main-game-next', 'disabled', true);
+    });
+</script>
+
+<style>
+  .main-game-card-list {
+    display: flex;
+    padding: 0;
+  }
+
+  .main-game-card-list li {
+    display: inline;
+    margin-right: 1em;
+  }
+</style>

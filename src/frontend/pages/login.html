@@ -1,0 +1,56 @@
+<template>
+  <i id="login-version"></i>
+  <form method="post" class="sx-grid-center">
+    <h1>sx|Sozialhilfe</h1>
+    <input type="text" name="name" id="login-name" required/>
+    <label for="login-name">Name</label>
+    <input type="password" name="password" id="login-password" required/>
+    <label for="login-password">Server-Passwort</label>
+    <input type="submit" value="anmelden"/>
+    <span id="login-error" class="sx-error">Das Passwort ist leider nicht korrekt.</span>
+  </form>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+
+    state.listen('version', version => helper.set('#login-version', 'innerText', version));
+    state.handle('sx-show-login', (data, next) => {
+        helper.set('#login-version', 'innerText', state.get('version'));
+        let name = state.get('player-name');
+        if (name) {
+            helper.set('#login-name', 'value', name);
+            helper.focus('#login-password');
+        } else {
+            helper.focus('#login-name');
+        }
+        return next(data);
+    });
+
+    action.listen('#login form', 'submit', (event) => {
+        event.preventDefault();
+        let name = helper.get('#login-name', 'value');
+        if (!name) {
+            return;
+        }
+        state.dispatch('loading', true);
+        state.dispatch('login', {
+            name: name,
+            password: helper.get('#login-password', 'value'),
+        });
+    });
+
+    state.listen('login', (success) => {
+        state.dispatch('loading', false);
+        if (!success) {
+            helper.style('#login-error', 'display', 'block');
+            helper.focus('#login-password');
+        }
+    });
+</script>
+
+<style>
+  #login-error {
+    display: none;
+  }
+</style>

@@ -1,0 +1,58 @@
+label {
+    display: block;
+    margin-bottom: 1em;
+}
+
+h1, h2 {
+    margin-top: 0;
+}
+
+th {
+    text-align: left;
+}
+
+td {
+    vertical-align: bottom;
+}
+
+button, [type=submit] {
+    margin-bottom: .5em;
+}
+
+.sx-overlay {
+    position: fixed;
+    background: rgba(255, 255, 255, .8);
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+}
+
+.sx-overlay-content {
+    background: white;
+    box-shadow: 1px 2px 5px gray;
+    padding: 2em;
+}
+
+.sx-error {
+    color: red;
+}
+
+.sx-spinner {
+    border: .5em solid lightgray;
+    border-top: .5em solid gray;
+    border-radius: 50%;
+    width: 2em;
+    height: 2em;
+    animation: spinner 2s linear infinite;
+}
+
+@keyframes spinner {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

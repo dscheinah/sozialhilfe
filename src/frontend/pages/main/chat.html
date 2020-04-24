@@ -1,0 +1,83 @@
+<template>
+  <div class="main-chat">
+    <h2>Chat</h2>
+    <ul id="main-chat-list">
+    </ul>
+    <form id="main-chat-form">
+      <input type="text" id="main-chat-message" placeholder="Nachricht"/>
+      <label for="main-chat-message">Nachricht</label>
+      <input type="submit" value="senden"/>
+    </form>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../../js/lib/sx.js';
+
+    state.listen('chat', (data) => {
+        let chat = helper.element('#main-chat-list');
+        if (!chat) {
+            return;
+        }
+        let li = helper.create('li');
+        li.dataset.name = data.name;
+        li.innerText = data.message;
+        chat.appendChild(li);
+        li.scrollIntoView();
+    });
+
+    action.listen('#main-chat-form', 'submit', (event) => {
+        event.preventDefault();
+        let message = helper.get('#main-chat-message', 'value');
+        if (message) {
+            state.dispatch('chat', message);
+            helper.set('#main-chat-message', 'value', '');
+            helper.focus('#main-chat-message');
+        }
+    });
+</script>
+
+<style>
+  .main-chat {
+    position: relative;
+    height: 100%;
+  }
+
+  #main-chat-list {
+    position: absolute;
+    top: 3em;
+    right: 0;
+    bottom: 6em;
+    left: 0;
+    padding: 0;
+    margin: 0;
+    overflow: auto;
+  }
+
+  #main-chat-list li {
+    display: block;
+    word-wrap: break-word;
+    padding-right: 1em;
+  }
+
+  #main-chat-list li:before {
+    content: attr(data-name);
+    margin-right: 1em;
+    font-weight: bold;
+  }
+
+  #main-chat-form {
+    position: absolute;
+    bottom: 1em;
+    width: 100%;
+  }
+
+  #main-chat-message {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .main-chat label {
+    display: none;
+  }
+</style>

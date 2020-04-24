@@ -1,0 +1,54 @@
+<template>
+  <h2>Spieler</h2>
+  <ul id="main-players-list">
+  </ul>
+</template>
+
+<script>
+    import {helper, state} from '../../js/lib/sx.js';
+    import {cards} from '../../js/mapping.js';
+
+    const apply = (players) => {
+        let list = helper.element('#main-players-list');
+        if (!list || !players) {
+            return;
+        }
+        let items = list.children, length = items.length;
+        players.forEach((player, index) => {
+            let item = items[index];
+            if (!item) {
+                item = helper.create('li');
+                list.appendChild(item);
+            }
+            let mappedCard = cards[player.average], cardsString = player.cards;
+            if (player.cards >= 10) {
+                cardsString = '~' + cardsString;
+            }
+            if (player.cards > 1) {
+                mappedCard = '~' + mappedCard;
+            }
+            item.innerHTML = `<strong>${player.name}</strong><br/>Karten ${cardsString}<br/>Wert ${mappedCard}`;
+        });
+        for (let i = players.length; i < length; i++) {
+            let item = items[i];
+            item.parentNode.removeChild(item);
+        }
+    };
+    state.listen('players', players => apply(players));
+    state.handle('sx-show-main', (data, next) => {
+        apply(state.get('players'));
+        return next(data);
+    });
+</script>
+
+<style>
+  #main-players-list {
+    display: flex;
+    padding: 0;
+  }
+
+  #main-players-list li {
+    display: inline;
+    margin-right: 1em;
+  }
+</style>

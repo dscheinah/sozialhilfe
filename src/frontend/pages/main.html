@@ -1,0 +1,98 @@
+<template>
+  <div class="main-grid">
+    <div id="main-game"></div>
+    <div id="main-players"></div>
+    <div id="main-statistics"></div>
+    <div id="main-chat"></div>
+  </div>
+  <div class="sx-overlay" id="main-waiting">
+    <div class="sx-grid-center">
+      <div class="sx-overlay-content">
+        <p>Warte auf weitere Spieler... (<span id="main-active"></span>/<span id="main-required"></span>)</p>
+        <button id="main-ai">KI aktivieren</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+    import {action, helper, loader, state, Page} from '../js/lib/sx.js';
+
+    const core = ['players', 'statistics'];
+
+    const sub = {
+        '#main-game': new Page('main/game'),
+        '#main-players': new Page('main/players'),
+        '#main-statistics': new Page('main/statistics'),
+        '#main-chat': new Page('main/chat'),
+    };
+    for (let key in sub) {
+        loader.add(sub[key].load());
+    }
+
+    const applyStatistics = (statistics) => {
+        if (!statistics) {
+            return;
+        }
+        if (statistics.players.active < statistics.players.required) {
+            helper.set('#main-active', 'innerText', statistics.players.active);
+            helper.set('#main-required', 'innerText', statistics.players.required);
+            helper.style('#main-waiting', 'display', 'block');
+        } else {
+            state.dispatch('loading', true);
+            helper.style('#main-waiting', 'display', null);
+        }
+    };
+    state.listen('statistics', statistics => applyStatistics(statistics));
+    state.handle('sx-show-main', (data, next) => {
+        core.forEach(key => state.dispatch(key));
+
+        for (let key in sub) {
+            helper.element(key).appendChild(sub[key].create());
+        }
+
+        applyStatistics(state.get('statistics'));
+        return next(data);
+    });
+
+    action.listen('#main-ai', 'click', () => {
+        state.dispatch('loading', true);
+        state.dispatch('ai');
+    });
+    state.listen('ai', () => state.dispatch('loading', false));
+</script>
+
+<style>
+  .main-grid {
+    display: grid;
+    grid-template-columns: 15% auto 30%;
+    grid-template-rows: auto auto;
+    grid-template-areas: "statistics game chat" "statistics players chat";
+    grid-gap: 2em;
+    position: absolute;
+    top: 1em;
+    right: 1em;
+    bottom: 1em;
+    left: 1em;
+  }
+
+  #main-game {
+    grid-area: game;
+  }
+
+  #main-players {
+    grid-area: players;
+  }
+
+  #main-statistics {
+    grid-area: statistics;
+  }
+
+  #main-chat {
+    grid-area: chat;
+  }
+
+  #main-waiting {
+    display: none;
+  }
+</style>
