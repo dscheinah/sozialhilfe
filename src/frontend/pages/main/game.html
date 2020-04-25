@@ -22,6 +22,9 @@
     import {cards as cardMapping, images} from '../../js/mapping.js';
 
     const reset = () => {
+        if (!helper.element('.main-game-wrapper')) {
+            return;
+        }
         state.dispatch('loading', true);
         [
             '#main-game-next',
@@ -33,15 +36,19 @@
         ].forEach(element => helper.set(element, 'innerHTML', null));
     };
     const doForSelf = (data, callback) => {
+        if (!helper.element('.main-game-wrapper')) {
+            return;
+        }
         data.forEach((playerData) => {
             if (playerData.player === state.get('player-name')) {
                 callback(playerData);
             }
         });
     };
-
-    state.listen('init', reset);
-    state.listen('calculate', (data) => {
+    const showCalculations = (data) => {
+        if (!helper.element('.main-game-wrapper')) {
+            return;
+        }
         let cardLists = {'#main-game-profit': 'profit', '#main-game-taxes': 'taxes'}, cards = [];
         for (let id in cardLists) {
             helper.set(id, 'innerHTML', null);
@@ -68,7 +75,10 @@
         }
         setTimeout(() => cards.forEach(card => card.classList.add('sx-visible')), 490);
         state.dispatch('draw-animation-ready', true);
-    });
+    }
+
+    state.listen('init', reset);
+    state.listen('calculate', showCalculations);
     state.listen('actions', (data) => {
         doForSelf(data, () => {
             state.dispatch('loading', false);
@@ -77,13 +87,26 @@
     });
     state.listen('waiting', (data) => {
         doForSelf(data, (waiting) => {
+            helper.set('#main-game-next', 'disabled', false);
             helper.set('#main-game-timer', 'innerText', waiting.timeout);
         });
     });
     state.listen('commit', reset);
 
+    state.handle('sx-show-main', (payload, next) => {
+        let calculations = state.get('calculate');
+        if (calculations) {
+            showCalculations(calculations);
+        } else {
+            ['#main-game-profit', '#main-game-taxes'].forEach((id) => {
+                helper.set(id, 'innerHTML', '<li class="sx-spinner sx-visible"></li>')
+            });
+        }
+        next(payload);
+    });
+
     action.listen('#main-game-next', 'click', () => {
-        state.dispatch('loading', true);
+        state.dispatch('loading', 'Warte auf andere Spieler, die Ergebnisse zu bestätigen...');
         state.dispatch('next');
     });
 

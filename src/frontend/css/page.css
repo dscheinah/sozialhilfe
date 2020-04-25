@@ -85,11 +85,13 @@ label {
 }
 
 .sx-spinner {
+    display: inline-block;
     border: 5px solid lightgray;
     border-top: 5px solid gray;
     border-radius: 50%;
     width: 30px;
     height: 30px;
+    margin-top: .5em;
     animation: spinner 2s linear infinite;
 }
 

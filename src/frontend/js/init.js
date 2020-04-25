@@ -5,15 +5,18 @@ import Store from './lib/store.js';
 const stack = new PageStack(), server = new Server(), store = new Store();
 
 state.set('player-name', store.load('player-name'));
-state.handle('login', (payload, next) => {
-    store.save('player-name', payload.name);
-    return next(payload);
+state.handle('login', async (payload) => {
+    if (await server.handle('login', payload)) {
+        store.save('player-name', payload.name);
+        state.set('player-name', payload.name);
+        return true;
+    }
+    return false;
 });
 
 [
     'ai',
     'chat',
-    'login',
     'next',
     'players',
     'statistics',
@@ -50,11 +53,23 @@ server.connect();
 
 state.handle('loading', (payload, next) => {
     if (payload) {
-        helper.style('#sx-loading', 'opacity', 1);
-        helper.style('#sx-loading', 'visibility', 'visible');
+        if (payload === true) {
+            helper.style('#sx-loading-details', 'opacity', null);
+            helper.style('#sx-loading-details', 'visibility', null);
+            helper.style('#sx-loading', 'opacity', 1);
+            helper.style('#sx-loading', 'visibility', 'visible');
+        } else {
+            helper.style('#sx-loading', 'opacity', null);
+            helper.style('#sx-loading', 'visibility', null);
+            helper.set('#sx-loading-message', 'innerText', payload);
+            helper.style('#sx-loading-details', 'opacity', 1);
+            helper.style('#sx-loading-details', 'visibility', 'visible');
+        }
     } else {
         helper.style('#sx-loading', 'opacity', null);
         helper.style('#sx-loading', 'visibility', null);
+        helper.style('#sx-loading-details', 'opacity', null);
+        helper.style('#sx-loading-details', 'visibility', null);
     }
     return next(payload);
 });

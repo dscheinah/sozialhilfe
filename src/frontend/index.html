@@ -21,7 +21,7 @@
         text-align: center;
       }
 
-      #sx-loading {
+      #sx-loading, #sx-loading-details {
         opacity: 0;
         visibility: hidden;
         transition: opacity .5s, visibility .5s;
@@ -51,7 +51,18 @@
     </div>
     <div id="sx-loading" class="sx-overlay">
       <div class="sx-grid-center">
-        <div class="sx-spinner"></div>
+        <div>
+          <br/>
+          <div class="sx-spinner"></div>
+        </div>
+      </div>
+    </div>
+    <div id="sx-loading-details" class="sx-overlay">
+      <div class="sx-grid-center">
+        <div class="sx-text-center sx-overlay-content">
+          <i id="sx-loading-message"></i><br/>
+          <div class="sx-spinner"></div>
+        </div>
       </div>
     </div>
     <div id="sx-error" class="sx-overlay sx-error">
