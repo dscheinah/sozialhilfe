@@ -7,13 +7,18 @@
     <style>
       .sx-grid-center {
         display: grid;
+        grid-template-rows: auto 2em;
         align-content: center;
         justify-content: center;
         position: absolute;
         top: 0;
-        right: 1em;
+        right: 15px;
         bottom: 0;
-        left: 1em;
+        left: 15px;
+      }
+
+      .sx-text-center {
+        text-align: center;
       }
 
       #sx-loading {
@@ -26,12 +31,22 @@
         display: none;
       }
     </style>
+    <link rel="prefetch" href="./img/7.jpg">
+    <link rel="prefetch" href="./img/8.jpg">
+    <link rel="prefetch" href="./img/9.jpg">
+    <link rel="prefetch" href="./img/B.jpg">
+    <link rel="prefetch" href="./img/D.jpg">
+    <link rel="prefetch" href="./img/K.jpg">
+    <link rel="prefetch" href="./img/A.jpg">
+    <link rel="prefetch" href="./img/10.jpg">
   </head>
   <body>
     <div id="sx-stack">
       <div class="sx-grid-center">
-        <i>Spiel wird geladen...</i>
-        <progress></progress>
+        <div class="sx-text-center">
+          <i>Spiel wird geladen...</i><br/>
+          <progress></progress>
+        </div>
       </div>
     </div>
     <div id="sx-loading" class="sx-overlay">

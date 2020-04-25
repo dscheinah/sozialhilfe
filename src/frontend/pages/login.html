@@ -1,13 +1,15 @@
 <template>
   <i id="login-version"></i>
   <form method="post" class="sx-grid-center">
-    <h1>sx|Sozialhilfe</h1>
-    <input type="text" name="name" id="login-name" required/>
-    <label for="login-name">Name</label>
-    <input type="password" name="password" id="login-password" required/>
-    <label for="login-password">Server-Passwort</label>
-    <input type="submit" value="anmelden"/>
-    <span id="login-error" class="sx-error">Das Passwort ist leider nicht korrekt.</span>
+    <div class="login-container">
+      <h1>sx|Sozialhilfe</h1>
+      <input type="text" name="name" id="login-name" required/>
+      <label for="login-name">Name</label>
+      <input type="password" name="password" id="login-password" required/>
+      <label for="login-password">Server-Passwort</label>
+      <input type="submit" value="anmelden"/>
+      <span id="login-error" class="sx-error">Das Passwort ist leider nicht korrekt.</span>
+    </div>
   </form>
 </template>
 
@@ -43,7 +45,7 @@
     state.listen('login', (success) => {
         state.dispatch('loading', false);
         if (!success) {
-            helper.style('#login-error', 'display', 'block');
+            helper.style('#login-error', 'opacity', 1);
             helper.focus('#login-password');
         }
     });
@@ -51,6 +53,10 @@
 
 <style>
   #login-error {
-    display: none;
+    opacity: 0;
+  }
+
+  .login-container {
+    width: 270px;
   }
 </style>

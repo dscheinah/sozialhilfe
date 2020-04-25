@@ -3,8 +3,13 @@ label {
     margin-bottom: 1em;
 }
 
-h1, h2 {
+h1, h2, h3 {
     margin-top: 0;
+}
+
+table {
+    border-collapse: collapse;
+    margin-bottom: 1em;
 }
 
 th {
@@ -17,6 +22,25 @@ td {
 
 button, [type=submit] {
     margin-bottom: .5em;
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+[disabled] {
+    cursor: default;
+}
+
+input, button {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: .5em;
+    line-height: 1;
+}
+
+label {
+    font-size: .8em;
 }
 
 .sx-overlay {
@@ -31,20 +55,41 @@ button, [type=submit] {
 
 .sx-overlay-content {
     background: white;
-    box-shadow: 1px 2px 5px gray;
+    box-shadow: 1px 4px 10px gray;
     padding: 2em;
+}
+
+.sx-flex-list {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+}
+
+.sx-flex-list li {
+    margin: 0 1em 1em 0;
 }
 
 .sx-error {
     color: red;
 }
 
+.sx-ellipsis {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.sx-visible.sx-visible {
+    visibility: visible;
+    opacity: 1;
+}
+
 .sx-spinner {
-    border: .5em solid lightgray;
-    border-top: .5em solid gray;
+    border: 5px solid lightgray;
+    border-top: 5px solid gray;
     border-radius: 50%;
-    width: 2em;
-    height: 2em;
+    width: 30px;
+    height: 30px;
     animation: spinner 2s linear infinite;
 }
 

@@ -1,23 +1,25 @@
 <template>
-  <h2>Spiel</h2>
-  <div>
-    <h3>Gewinn</h3>
-    <strong id="main-game-winner"></strong>
-    <ul id="main-game-profit" class="main-game-card-list"></ul>
+  <div class="main-game-wrapper">
+    <h2>Spiel</h2>
+    <div>
+      <h3>Gewinn</h3>
+      <ul id="main-game-profit" class="sx-flex-list main-game-card-list"></ul>
+    </div>
+    <div>
+      <h3>Steuern</h3>
+      <ul id="main-game-taxes" class="sx-flex-list main-game-card-list"></ul>
+    </div>
+    <div class="main-game-next-wrapper">
+      <button id="main-game-next" disabled>
+        weiter <span id="main-game-timer"></span>
+      </button>
+    </div>
   </div>
-  <div>
-    <h3>Steuern</h3>
-    <ul id="main-game-taxes" class="main-game-card-list"></ul>
-  </div>
-  <button id="main-game-next" disabled>
-    weiter
-    <span id="main-game-timer"></span>
-  </button>
 </template>
 
 <script>
     import {action, helper, state} from '../../js/lib/sx.js';
-    import {cards} from '../../js/mapping.js';
+    import {cards as cardMapping, images} from '../../js/mapping.js';
 
     const reset = () => {
         state.dispatch('loading', true);
@@ -25,7 +27,6 @@
             '#main-game-next',
         ].forEach(button => helper.set(button, 'disabled', true));
         [
-            '#main-game-winner',
             '#main-game-profit',
             '#main-game-taxes',
             '#main-game-timer',
@@ -41,17 +42,32 @@
 
     state.listen('init', reset);
     state.listen('calculate', (data) => {
-        helper.set('#main-game-winner', 'innerText', data.player);
-        let cardLists = {'#main-game-profit': 'profit', '#main-game-taxes': 'taxes'};
+        let cardLists = {'#main-game-profit': 'profit', '#main-game-taxes': 'taxes'}, cards = [];
         for (let id in cardLists) {
             helper.set(id, 'innerHTML', null);
             let list = helper.element(id);
-            data[cardLists[id]].sort().reverse().forEach((value) => {
-                let li = helper.create('li');
-                li.innerHTML = cards[value];
-                list.appendChild(li);
-            });
+            if (list) {
+                data[cardLists[id]].forEach((card) => {
+                    let li = helper.create('li'), img = helper.create('img'), name = helper.create('small');
+                    img.src = images[card.card];
+                    img.width = 80;
+                    img.alt = cardMapping[card.card];
+                    li.appendChild(img);
+                    name.innerText = card.player;
+                    name.classList.add('sx-ellipsis');
+                    name.classList.add('sx-text-center');
+                    if (card.player === data.player) {
+                        name.classList.add('main-game-winner');
+                    }
+                    li.appendChild(name);
+                    li.dataset.card = card.player;
+                    list.appendChild(li);
+                    cards.push(li);
+                });
+            }
         }
+        setTimeout(() => cards.forEach(card => card.classList.add('sx-visible')), 490);
+        state.dispatch('draw-animation-ready', true);
     });
     state.listen('actions', (data) => {
         doForSelf(data, () => {
@@ -67,6 +83,7 @@
     state.listen('commit', reset);
 
     action.listen('#main-game-next', 'click', () => {
+        state.dispatch('loading', true);
         state.dispatch('next');
     });
 
@@ -77,13 +94,54 @@
 </script>
 
 <style>
+  .main-game-wrapper {
+    position: relative;
+    height: 100%;
+    padding-bottom: 2em;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+  }
+
+  .main-game-next-wrapper {
+    position: absolute;
+    right: 0;
+    bottom: -15px;
+    left: 0;
+  }
+
+  #main-game-timer {
+    position: absolute;
+    right: 1em;
+    opacity: .5;
+  }
+
   .main-game-card-list {
-    display: flex;
-    padding: 0;
+    margin-top: 0;
+    min-height: 170px;
   }
 
   .main-game-card-list li {
     display: inline;
-    margin-right: 1em;
+    opacity: 0;
+  }
+
+  .main-game-card-list img {
+    border-radius: 5px;
+    box-shadow: 1px 1px 2px lightgray;
+  }
+
+  .main-game-card-list small {
+    display: block;
+  }
+
+  .main-game-winner {
+    font-weight: bold;
+    margin-left: -1em;
+  }
+
+  .main-game-winner:before {
+    content: "\1f3c6";
+    color: gold;
+    margin-right: .5em;
   }
 </style>

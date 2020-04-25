@@ -1,7 +1,7 @@
 <template>
   <h2>Statistik</h2>
   <h3>Staat</h3>
-  <table>
+  <table class="main-statistics-table">
     <tr>
       <th>Stufe</th>
       <td id="main-statistics-pool-level"></td>
@@ -16,7 +16,7 @@
     </tr>
   </table>
   <h3>Spieler</h3>
-  <table>
+  <table class="main-statistics-table">
     <tr>
       <th>aktiv</th>
       <td><span id="main-statistics-players-active"></span><span id="main-statistics-players-ai"></span></td>
@@ -57,3 +57,9 @@
         return next(data);
     });
 </script>
+
+<style>
+  .main-statistics-table th {
+    min-width: 90px;
+  }
+</style>

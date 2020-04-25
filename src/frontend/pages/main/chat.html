@@ -38,20 +38,9 @@
 </script>
 
 <style>
-  .main-chat {
-    position: relative;
-    height: 100%;
-  }
-
   #main-chat-list {
-    position: absolute;
-    top: 3em;
-    right: 0;
-    bottom: 6em;
-    left: 0;
     padding: 0;
-    margin: 0;
-    overflow: auto;
+    margin: 0 0 1em;
   }
 
   #main-chat-list li {
@@ -67,17 +56,49 @@
   }
 
   #main-chat-form {
-    position: absolute;
-    bottom: 1em;
-    width: 100%;
+    display: flex;
+  }
+
+  #main-chat-form input {
+    height: 3em;
   }
 
   #main-chat-message {
-    width: 100%;
+    flex: 1 0 auto;
+    width: auto;
     box-sizing: border-box;
+  }
+
+  #main-chat-form [type="submit"] {
+    flex: 0 1 auto;
+    width: auto;
+    margin-left: -1px;
   }
 
   .main-chat label {
     display: none;
+  }
+
+  @media (min-width: 1200px) {
+    .main-chat {
+      position: relative;
+      height: 100%;
+      min-height: 20em;
+    }
+
+    #main-chat-list {
+      position: absolute;
+      top: 3em;
+      right: 0;
+      bottom: 4em;
+      left: 0;
+      overflow: auto;
+    }
+
+    #main-chat-form {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+    }
   }
 </style>

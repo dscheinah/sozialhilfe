@@ -1,6 +1,6 @@
 <template>
   <h2>Spieler</h2>
-  <ul id="main-players-list">
+  <ul id="main-players-list" class="sx-flex-list">
   </ul>
 </template>
 
@@ -20,14 +20,17 @@
                 item = helper.create('li');
                 list.appendChild(item);
             }
-            let mappedCard = cards[player.average], cardsString = player.cards;
-            if (player.cards >= 10) {
-                cardsString = '~' + cardsString;
-            }
-            if (player.cards > 1) {
-                mappedCard = '~' + mappedCard;
-            }
-            item.innerHTML = `<strong>${player.name}</strong><br/>Karten ${cardsString}<br/>Wert ${mappedCard}`;
+            let mappedCard = cards[player.average], table = helper.create('table'), rows = {};
+            ['cards', 'average'].forEach((key) => {
+                let row = helper.create('tr');
+                table.appendChild(row);
+                rows[key] = row;
+            });
+            rows.cards.innerHTML = `<th>Karten</th><td>${player.cards >= 10 ? '~' : ''}</td><td>${player.cards}</td>`;
+            rows.average.innerHTML = `<th>Wert</th><td>${player.cards > 1 ? '~' : ''}</td><td>${mappedCard}</td>`;
+            item.innerHTML = `<strong>${player.name}</strong>`;
+            item.dataset.player = player.name;
+            item.appendChild(table);
         });
         for (let i = players.length; i < length; i++) {
             let item = items[i];
@@ -42,13 +45,21 @@
 </script>
 
 <style>
-  #main-players-list {
-    display: flex;
-    padding: 0;
-  }
-
   #main-players-list li {
     display: inline;
-    margin-right: 1em;
+    width: 95px;
+    padding: 10px;
+    border: 1px solid lightgray;
+    box-shadow: 1px 1px 2px lightgray;
+    border-radius: 5px;
+  }
+
+  #main-players-list strong {
+    display: block;
+    border-bottom: 1px solid lightgray;
+    padding-bottom: .5em;
+    margin-bottom: .5em;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 </style>

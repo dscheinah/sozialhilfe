@@ -6,7 +6,7 @@ const handler = (error) => {
         message = error.reason;
     }
     if (message.replace) {
-        message = message.replace(/^Error: /, '');
+        message = message.replace(/^(.*?)Error: /, '');
     }
     document.getElementById('sx-error').style.display = 'block';
     document.getElementById('sx-error-message').innerHTML = message;

@@ -28,6 +28,10 @@ class Helper {
         return document.querySelector(selector);
     }
 
+    elements(selector) {
+        return document.querySelectorAll(selector);
+    }
+
     create(tag) {
         return document.createElement(tag);
     }

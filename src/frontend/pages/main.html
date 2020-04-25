@@ -39,7 +39,6 @@
             helper.set('#main-required', 'innerText', statistics.players.required);
             helper.style('#main-waiting', 'display', 'block');
         } else {
-            state.dispatch('loading', true);
             helper.style('#main-waiting', 'display', null);
         }
     };
@@ -60,20 +59,84 @@
         state.dispatch('ai');
     });
     state.listen('ai', () => state.dispatch('loading', false));
+
+    state.handle('draw-animation-ready', (ready, next) => {
+        if (ready) {
+            let animations = [];
+            helper.elements('[data-card]').forEach((card) => {
+                let animation = helper.create('div'), player = helper.element(`[data-player=${card.dataset.card}]`);
+                if (!player) {
+                    return;
+                }
+                animation.classList.add('main-card-animation');
+                let cardPosition = card.getBoundingClientRect(), playerPosition = player.getBoundingClientRect();
+                animation.style.width = playerPosition.width + 'px';
+                animation.style.height = playerPosition.height + 'px';
+                animation.style.top = playerPosition.top + 'px';
+                animation.style.left = playerPosition.left + 'px';
+                document.body.appendChild(animation);
+                animations.push(animation);
+                setTimeout(() => {
+                    animation.classList.add('main-card-animation-transform');
+                    animation.style.width = cardPosition.width + 'px';
+                    animation.style.height = cardPosition.height + 'px';
+                    animation.style.top = cardPosition.top + 'px';
+                    animation.style.left = cardPosition.left + 'px';
+                }, 50);
+            });
+            setTimeout(() => animations.forEach(animation => animation.parentNode.removeChild(animation)), 500);
+        }
+        return next(ready);
+    });
 </script>
 
 <style>
   .main-grid {
     display: grid;
-    grid-template-columns: 15% auto 30%;
-    grid-template-rows: auto auto;
-    grid-template-areas: "statistics game chat" "statistics players chat";
-    grid-gap: 2em;
+    grid-template-columns: auto;
+    grid-template-rows: auto auto auto auto auto;
+    grid-template-areas: "game" "players" "statistics" "chat";
+    grid-gap: 30px;
     position: absolute;
-    top: 1em;
-    right: 1em;
-    bottom: 1em;
-    left: 1em;
+    top: 15px;
+    right: 15px;
+    bottom: 15px;
+    left: 15px;
+  }
+
+  @media (min-width: 800px) {
+    .main-grid {
+      grid-template-columns: 20% auto;
+      grid-template-rows: auto auto auto;
+      grid-template-areas: "statistics game" "statistics players" "chat chat";
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .main-grid {
+      grid-template-columns: 15% auto 30%;
+      grid-template-rows: auto auto;
+      grid-template-areas: "statistics game chat" "statistics players chat";
+    }
+  }
+
+  .main-grid > * {
+    padding: 15px;
+    box-shadow: 1px 2px 5px lightgray;
+  }
+
+  .main-grid h2 {
+    background: #EAD1B2;
+    color: white;
+    margin: -15px -15px 1em;
+    padding: 5px 10px;
+    font-size: .8em;
+  }
+
+  .main-grid h3 {
+    border-bottom: 1px solid lightgray;
+    display: inline-block;
+    padding-bottom: .5em;
   }
 
   #main-game {
@@ -94,5 +157,21 @@
 
   #main-waiting {
     display: none;
+  }
+
+  .main-card-animation {
+    position: fixed;
+    transition: width .5s, height .5s, top .5s, left .5s, transform .5s, background-color .3s .2s;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    box-shadow: 1px 2px 5px lightgray;
+    background-color: white;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+
+  .main-card-animation-transform {
+    transform: rotateX(180deg) rotateY(180deg);
+    background-color: lightgray;
   }
 </style>
