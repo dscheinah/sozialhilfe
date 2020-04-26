@@ -14,6 +14,7 @@
         weiter <span id="main-game-timer"></span>
       </button>
     </div>
+    <span id="main-game-help">?</span>
   </div>
 </template>
 
@@ -75,7 +76,7 @@
         }
         setTimeout(() => cards.forEach(card => card.classList.add('sx-visible')), 490);
         state.dispatch('draw-animation-ready', true);
-    }
+    };
 
     state.listen('init', reset);
     state.listen('calculate', showCalculations);
@@ -99,7 +100,7 @@
             showCalculations(calculations);
         } else {
             ['#main-game-profit', '#main-game-taxes'].forEach((id) => {
-                helper.set(id, 'innerHTML', '<li class="sx-spinner sx-visible"></li>')
+                helper.set(id, 'innerHTML', '<li class="sx-spinner sx-visible"></li>');
             });
         }
         next(payload);
@@ -109,6 +110,7 @@
         state.dispatch('loading', 'Warte auf andere Spieler, die Ergebnisse zu bestätigen...');
         state.dispatch('next');
     });
+    action.listen('#main-game-help', 'click', () => state.dispatch('open', 'help'));
 
     state.listen('next', () => {
         helper.set('#main-game-timer', 'innerHTML', null);
@@ -123,6 +125,21 @@
     padding-bottom: 2em;
     margin-bottom: 15px;
     box-sizing: border-box;
+  }
+
+  #main-game-help {
+    display: block;
+    width: 1.5em;
+    height: 1.5em;
+    background: #264B61;
+    color: white;
+    border-radius: 100%;
+    cursor: pointer;
+    position: absolute;
+    top: 40px;
+    right: 0;
+    text-align: center;
+    line-height: 1.5;
   }
 
   .main-game-next-wrapper {

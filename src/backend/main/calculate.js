@@ -29,7 +29,7 @@ module.exports = class Calculate extends Game.Base {
         });
 
         this.reset();
-        this.draw(players);
+        this.draw(players, broadcast);
         this.calculateTaxes();
 
         broadcast({
@@ -58,7 +58,7 @@ module.exports = class Calculate extends Game.Base {
         this.taxCards = [];
     }
 
-    draw(players) {
+    draw(players, broadcast) {
         let current = [], bestCard = 0, toss = [];
         players.forEach((player) => {
             let card = this.createCard(player);
@@ -83,7 +83,18 @@ module.exports = class Calculate extends Game.Base {
                     tossingPlayers.push(card.player);
                 }
             });
-            this.draw(tossingPlayers);
+            let tossingPlayersText = toss[0].player.name, length = toss.length - 1;
+            for (let i = 1; i < length; i++) {
+                tossingPlayersText += ', ' + toss[i].player.name;
+            }
+            tossingPlayersText += ' und ' + toss[length].player.name;
+            broadcast({
+                type: 'chat',
+                payload: {
+                    message: 'Stechen zwischen ' + tossingPlayersText,
+                }
+            })
+            this.draw(tossingPlayers, broadcast);
         } else {
             current.forEach((card) => {
                 if (card.card === bestCard) {

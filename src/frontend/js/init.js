@@ -45,6 +45,7 @@ server.connect();
     'main',
     'finish',
     'dead',
+    'help',
 ].forEach((id) => {
     let page = new Page(id);
     loader.add(page.load());
@@ -72,6 +73,15 @@ state.handle('loading', (payload, next) => {
         helper.style('#sx-loading-details', 'visibility', null);
     }
     return next(payload);
+});
+
+state.handle('open', (page, next) => {
+    stack.show(page);
+    return next(page);
+});
+state.handle('close', (page, next) => {
+    stack.hide(page);
+    return next(page);
 });
 
 state.listen('login', (success) => {

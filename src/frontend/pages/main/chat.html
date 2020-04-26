@@ -20,7 +20,9 @@
             return;
         }
         let li = helper.create('li');
-        li.dataset.name = data.name;
+        if (data.name) {
+            li.dataset.name = data.name;
+        }
         li.innerText = data.message;
         chat.appendChild(li);
         li.scrollIntoView();
@@ -49,7 +51,11 @@
     padding-right: 1em;
   }
 
-  #main-chat-list li:before {
+  #main-chat-list li:not([data-name]) {
+    font-style: italic;
+  }
+
+  #main-chat-list li[data-name]:before {
     content: attr(data-name);
     margin-right: 1em;
     font-weight: bold;
