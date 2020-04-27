@@ -1,0 +1,99 @@
+<template>
+  <div class="sx-overlay">
+    <div class="sx-overlay-content">
+      <h2>Wähle die Reihenfolge deiner Karten</h2>
+      <p>
+        Benutze Drag & Drop, um die als nächstes aufgedeckte Karte ganz rechts zu positionieren.<br/>
+        Beachte, dass im Fall eines Stichs die zweite Karte nicht zum Gewinnen relevant ist.
+      </p>
+      <ul id="select-list" class="sx-flex-list sx-card-list"></ul>
+      <div class="sx-next-wrapper">
+        <button id="select-confirm">
+          bestätigen <span id="select-timeout" class="sx-timer"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+    import {cards as cardMapping, images} from '../js/mapping.js';
+
+    const render = (cards) => {
+        let list = helper.element('#select-list');
+        if (!list || !cards.length) {
+            return;
+        }
+        cards.forEach((card) => {
+            let li = helper.create('li');
+            li.dataset.card = card;
+            li.innerHTML = `<img src="${images[card]}" width="100" alt="${cardMapping[card]}"/>`;
+            li.draggable = true;
+            list.appendChild(li);
+        });
+    };
+
+    state.listen('cards', cards => {
+        if (cards.player !== state.get('player-name')) {
+            return;
+        }
+        render(cards);
+    });
+    state.handle('sx-show-select', (payload, next) => {
+        let cards = state.get('cards');
+        if (cards.player !== state.get('player-name')) {
+            return;
+        }
+        state.dispatch('loading', false);
+        render(cards.cards);
+        return next(payload);
+    });
+
+    state.listen('selecting', (selecting) => {
+        let name = state.get('player-name');
+        selecting.forEach((select) => {
+            if (select.player === name) {
+                helper.set('#select-timeout', 'innerText', select.timeout);
+            }
+        });
+    });
+
+    action.listen('#select-confirm', 'click', () => {
+        let cards = [];
+        helper.elements('#select-list li').forEach(li => cards.push(li.dataset.card));
+        state.dispatch('loading', true);
+        state.dispatch('select', cards);
+    });
+
+    let source, target;
+    action.listen('#select-list li', 'dragstart', (e) => {
+        source = e.target;
+        while (!source.dataset.card) {
+            source = source.parentNode;
+        }
+    });
+    action.listen('#select-list li', 'dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        helper.elements('.select-drag').forEach(element => element.classList.remove('select-drag'));
+        target = e.target;
+        while (!target.dataset.card) {
+            target = target.parentNode;
+        }
+        target.classList.add('select-drag');
+    });
+    action.listen('#select-list li', 'drop', (e) => {
+        e.preventDefault();
+        target.parentNode.insertBefore(source.cloneNode(true), target);
+        source.parentNode.insertBefore(target, source);
+        source.parentNode.removeChild(source);
+        helper.elements('.select-drag').forEach(element => element.classList.remove('select-drag'));
+    });
+</script>
+
+<style>
+  .select-drag {
+    opacity: .3;
+  }
+</style>

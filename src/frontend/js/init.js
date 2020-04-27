@@ -19,6 +19,7 @@ state.handle('login', async (payload) => {
     'chat',
     'next',
     'players',
+    'select',
     'statistics',
 ].forEach((call) => {
     state.handle(call, payload => server.handle(call, payload));
@@ -26,12 +27,14 @@ state.handle('login', async (payload) => {
 [
     'actions',
     'calculate',
+    'cards',
     'chat',
     'commit',
     'dead',
     'finish',
     'init',
     'players',
+    'selecting',
     'statistics',
     'version',
     'waiting',
@@ -45,6 +48,7 @@ server.connect();
     'main',
     'finish',
     'dead',
+    'select',
     'help',
     'message',
 ].forEach((id) => {
@@ -99,6 +103,18 @@ state.listen('dead', (name) => {
         stack.show('dead');
     }
 });
+state.listen('cards', (payload) => {
+    if (payload.player === state.get('player-name')) {
+        stack.show('select');
+    }
+});
+state.listen('selecting', (payload) => {
+    if (!payload.length) {
+        stack.hide('select');
+    }
+});
+state.listen('select', () => stack.hide('select'));
+state.listen('calculate', () => stack.hide('select'));
 
 action.listen('[title]', 'click', (e) => {
     let target = e.target;

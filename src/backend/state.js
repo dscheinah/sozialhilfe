@@ -11,6 +11,7 @@ class State {
     pool = new (require('./state/pool.js'))();
     openProfit = [];
     openTaxes = [];
+    playerSelectLimit = 3;
 
     constructor() {
         if (!fs.existsSync(file)) {

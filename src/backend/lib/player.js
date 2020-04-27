@@ -7,6 +7,7 @@ module.exports = class Player {
     winner = false;
     help = false;
     rounds = 0;
+    selectTimeout = 0;
 
     constructor(name) {
         this.name = name;
@@ -60,5 +61,9 @@ module.exports = class Player {
 
     give(cards) {
         this.cards = [...cards, ...this.cards];
+    }
+
+    select(timeout) {
+        this.selectTimeout = timeout < 0 ? 0 : timeout;
     }
 };

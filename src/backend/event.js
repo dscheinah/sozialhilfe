@@ -4,6 +4,7 @@ const types = {
     login: new (require('./event/login.js'))(),
     next: new (require('./event/next.js'))(),
     players: new (require('./event/players.js'))(),
+    select: new (require('./event/select.js'))(),
     statistics: new (require('./event/statistics.js'))(),
 };
 

@@ -3,15 +3,15 @@
     <h2>Spiel</h2>
     <div>
       <h3>Gewinn</h3>
-      <ul id="main-game-profit" class="sx-flex-list main-game-card-list"></ul>
+      <ul id="main-game-profit" class="sx-flex-list sx-card-list main-game-card-list"></ul>
     </div>
     <div>
       <h3>Steuern</h3>
-      <ul id="main-game-taxes" class="sx-flex-list main-game-card-list"></ul>
+      <ul id="main-game-taxes" class="sx-flex-list sx-card-list main-game-card-list"></ul>
     </div>
-    <div class="main-game-next-wrapper">
+    <div class="sx-next-wrapper">
       <button id="main-game-next" disabled>
-        weiter <span id="main-game-timer"></span>
+        weiter <span id="main-game-timer" class="sx-timer"></span>
       </button>
     </div>
     <span id="main-game-help">?</span>
@@ -40,8 +40,9 @@
         if (!helper.element('.main-game-wrapper')) {
             return;
         }
+        let name = state.get('player-name');
         data.forEach((playerData) => {
-            if (playerData.player === state.get('player-name')) {
+            if (playerData.player === name) {
                 callback(playerData);
             }
         });
@@ -142,34 +143,14 @@
     line-height: 1.5;
   }
 
-  .main-game-next-wrapper {
-    position: sticky;
-    right: 0;
-    bottom: 0;
-    left: 0;
-  }
-
-  #main-game-timer {
-    position: absolute;
-    right: 1em;
-    opacity: .5;
-  }
-
   .main-game-card-list {
     margin-top: 0;
     min-height: 200px;
   }
 
   .main-game-card-list li {
-    display: inline;
     opacity: 0;
   }
-
-  .main-game-card-list img {
-    border-radius: 5px;
-    box-shadow: 1px 1px 2px lightgray;
-  }
-
   .main-game-card-list small {
     display: block;
     width: 100px;

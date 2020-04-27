@@ -4,6 +4,7 @@ const state = require('./state.js');
 const handlers = {};
 handlers[Game.STATE_INIT] = new (require('./main/init.js'))();
 handlers[Game.STATE_PREPARE] = new (require('./main/prepare.js'))();
+handlers[Game.STATE_SELECT] = new (require('./main/select.js'))();
 handlers[Game.STATE_CALCULATE] = new (require('./main/calculate.js'))();
 handlers[Game.STATE_WAITING] = new (require('./main/waiting.js'))();
 handlers[Game.STATE_COMMIT] = new (require('./main/commit.js'))();

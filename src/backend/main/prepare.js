@@ -17,6 +17,17 @@ module.exports = class Prepare extends Game.Base {
                 }
                 player.give(helpCards);
             }
+            if (player.cards.length && player.cards.length <= state.playerSelectLimit && !player.ai) {
+                player.select(state.waitTimeout);
+                broadcast({
+                    type: 'cards',
+                    payload: {
+                        player: player.name,
+                        cards: player.cards,
+                    },
+                });
+                nextState = Game.STATE_SELECT;
+            }
         });
         refresh(['statistics', 'players']);
         return nextState;

@@ -54,6 +54,20 @@
         return next(data);
     });
 
+    state.listen('selecting', (selecting) => {
+        if (!helper.element('#main')) {
+            return;
+        }
+        if (!selecting.length) {
+            state.dispatch('loading', true);
+            return;
+        }
+        let name = state.get('player-name');
+        if (!selecting.filter(entry => entry.player === name && entry.timeout).length) {
+            state.dispatch('loading', 'Warte auf Spieler, die ihre Karten auswählen dürfen.');
+        }
+    });
+
     action.listen('#main-ai', 'click', () => {
         state.dispatch('loading', true);
         state.dispatch('ai');
