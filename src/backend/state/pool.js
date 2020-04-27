@@ -23,8 +23,10 @@ module.exports = class Pool {
     };
     cardsPerPlayer = 40;
     helpAmount = 2;
+    taxLimitPerPlayer = 3;
     cards = [];
     level = 0;
+    taxIncreased = false;
 
     drawPlayerBase() {
         if (this.cards.length < this.cardsPerPlayer + this.level * 15) {
@@ -71,5 +73,18 @@ module.exports = class Pool {
         } else {
             this.cards = [...cards, ...this.cards];
         }
+    }
+
+    getTaxCount(base) {
+        let count = Math.floor((base - 3) / 2) + 1;
+        return this.taxIncreased ? count + 1 : count;
+    }
+
+    increaseTaxes() {
+        this.taxIncreased = true;
+    }
+
+    restoreTaxes() {
+        this.taxIncreased = false;
     }
 };

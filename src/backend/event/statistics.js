@@ -14,7 +14,8 @@ module.exports = class Statistics extends require('../lib/handler.js') {
                 cards: state.pool.cards.length,
                 level: state.pool.level,
                 average: state.pool.cards.length ? Math.round(average(state.pool.cards)) : 0,
-            }
+                increased: state.pool.taxIncreased,
+            },
         };
     }
 };

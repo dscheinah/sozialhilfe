@@ -32,6 +32,7 @@ class State {
         this.pool.currentSet = data.pool.currentSet;
         this.pool.cards = data.pool.cards;
         this.pool.level = data.pool.level;
+        this.pool.taxIncreased = data.pool.taxIncreased;
         this.pool.returnCards(data.openProfit);
         this.pool.returnCards(data.openTaxes);
     }

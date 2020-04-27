@@ -20,6 +20,12 @@
       </th>
       <td id="main-statistics-pool-average"></td>
     </tr>
+    <tr>
+      <th>
+        Steuern
+      </th>
+      <td id="main-statistics-pool-increased"></td>
+    </tr>
   </table>
   <h3>Spieler</h3>
   <table class="main-statistics-table">
@@ -55,6 +61,7 @@
         helper.set('#main-statistics-players-inactive', 'innerText', statistics.players.inactive);
         helper.set('#main-statistics-pool-level', 'innerText', statistics.pool.level);
         helper.set('#main-statistics-pool-cards', 'innerText', statistics.pool.cards);
+        helper.set('#main-statistics-pool-increased', 'innerText', statistics.pool.increased ? 'erhöht' : 'normal');
         let mappedCard = cards[statistics.pool.average];
         if (statistics.pool.cards > 1) {
             mappedCard = '~' + mappedCard;

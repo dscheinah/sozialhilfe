@@ -106,7 +106,7 @@ module.exports = class Calculate extends Game.Base {
     }
 
     calculateTaxes() {
-        let calculations = {}, level = 0, taxCount = Math.floor((this.cards.length - 3) / 2) + 1;
+        let calculations = {}, level = 0, taxCount = state.pool.getTaxCount(this.cards.length);
         this.cards.forEach((card) => {
             if (!this.winner) {
                 this.taxes.push(card);
