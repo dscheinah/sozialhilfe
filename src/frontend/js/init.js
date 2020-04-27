@@ -1,4 +1,4 @@
-import {helper, loader, state, PageStack, Page} from './lib/sx.js';
+import {action, helper, loader, state, PageStack, Page} from './lib/sx.js';
 import Server from './lib/server.js';
 import Store from './lib/store.js';
 
@@ -46,6 +46,7 @@ server.connect();
     'finish',
     'dead',
     'help',
+    'message',
 ].forEach((id) => {
     let page = new Page(id);
     loader.add(page.load());
@@ -83,6 +84,7 @@ state.handle('close', (page, next) => {
     stack.hide(page);
     return next(page);
 });
+state.handle('message', message => message);
 
 state.listen('login', (success) => {
     if (success) {
@@ -90,10 +92,22 @@ state.listen('login', (success) => {
         stack.show('main');
     }
 });
+state.listen('message', () => stack.show('message'));
 state.listen('finish', () => stack.show('finish'));
 state.listen('dead', (name) => {
     if (name === state.get('player-name')) {
         stack.show('dead');
+    }
+});
+
+action.listen('[title]', 'click', (e) => {
+    let target = e.target;
+    while (target) {
+        if (target.title) {
+            state.dispatch('message', target.title);
+            return;
+        }
+        target = target.parentNode;
     }
 });
 

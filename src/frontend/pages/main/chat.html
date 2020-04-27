@@ -25,7 +25,9 @@
         }
         li.innerText = data.message;
         chat.appendChild(li);
-        li.scrollIntoView();
+        if (window.innerWidth >= 1200) {
+            li.scrollIntoView();
+        }
     });
 
     action.listen('#main-chat-form', 'submit', (event) => {

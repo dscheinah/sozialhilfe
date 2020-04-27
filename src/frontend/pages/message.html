@@ -1,0 +1,24 @@
+<template>
+  <div class="sx-overlay">
+    <div class="sx-grid-center">
+      <div class="sx-overlay-content sx-text">
+        <p id="message-content"></p>
+        <span class="sx-overlay-close" id="message-close">×</span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+
+    state.listen('sx-message-show', () => {
+        helper.set('#message-content', 'innerText', state.get('message'));
+    });
+    state.listen('message', message => helper.set('#message-content', 'innerText', message));
+
+    action.listen('#message-close', 'click', () => state.dispatch('close', 'message'));
+</script>
+
+<style>
+</style>

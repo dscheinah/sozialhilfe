@@ -6,7 +6,9 @@
 
 <script>
     import {helper, state} from '../../js/lib/sx.js';
-    import {cards} from '../../js/mapping.js';
+
+    const cardsHelp = 'Die Anzahl der Karten ist auf volle Zehner gerundet.';
+    const scoreHelp = 'Die Punkte berechnen sich aus der Anzahl der Karten, dem durchschnittlichen Wert und den gespielten Runden.';
 
     const apply = (players) => {
         let list = helper.element('#main-players-list');
@@ -20,14 +22,18 @@
                 item = helper.create('li');
                 list.appendChild(item);
             }
-            let mappedCard = cards[player.average], table = helper.create('table'), rows = {};
-            ['cards', 'average'].forEach((key) => {
+            let table = helper.create('table'), rows = {};
+            ['cards', 'score'].forEach((key) => {
                 let row = helper.create('tr');
                 table.appendChild(row);
                 rows[key] = row;
             });
-            rows.cards.innerHTML = `<th>Karten</th><td>${player.cards >= 10 ? '~' : ''}</td><td>${player.cards}</td>`;
-            rows.average.innerHTML = `<th>Wert</th><td>${player.cards > 1 ? '~' : ''}</td><td>${mappedCard}</td>`;
+            if (player.cards >= 10) {
+                rows.cards.innerHTML = `<th title="${cardsHelp}">Karten</th><td>~${player.cards}</td>`;
+            } else {
+                rows.cards.innerHTML = `<th>Karten</th><td>${player.cards}</td>`;
+            }
+            rows.score.innerHTML = `<th title="${scoreHelp}">Punkte</th><td>${player.score}</td>`;
             item.innerHTML = `<strong>${player.name}</strong>`;
             item.dataset.player = player.name;
             item.appendChild(table);
@@ -52,6 +58,10 @@
     border: 1px solid lightgray;
     box-shadow: 1px 1px 2px lightgray;
     border-radius: 5px;
+  }
+
+  #main-players-list td {
+    text-align: right;
   }
 
   #main-players-list strong {

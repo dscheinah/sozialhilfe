@@ -3,15 +3,21 @@
   <h3>Staat</h3>
   <table class="main-statistics-table">
     <tr>
-      <th>Stufe</th>
+      <th title="Die Anzahl an verwendeten Kartensätzen. Diese wird mit neuen Spielern erhöht und bei ausreichend Karten im Staat reduziert.">
+        Stufe
+      </th>
       <td id="main-statistics-pool-level"></td>
     </tr>
     <tr>
-      <th>Karten</th>
+      <th>
+        Karten
+      </th>
       <td id="main-statistics-pool-cards"></td>
     </tr>
     <tr>
-      <th>Wert</th>
+      <th title="Der durchschnittliche Wert der Karten im Stapel des Staats.">
+        Wert
+      </th>
       <td id="main-statistics-pool-average"></td>
     </tr>
   </table>
@@ -19,10 +25,12 @@
   <table class="main-statistics-table">
     <tr>
       <th>aktiv</th>
-      <td><span id="main-statistics-players-active"></span><span id="main-statistics-players-ai"></span></td>
+      <td id="main-statistics-players">
+        <span id="main-statistics-players-active"></span><span id="main-statistics-players-ai"></span>
+      </td>
     </tr>
     <tr>
-      <th>schlafend</th>
+      <th title="Anzahl der gerade nicht verbundenen Spieler.">schlafend</th>
       <td id="main-statistics-players-inactive"></td>
     </tr>
   </table>
@@ -39,8 +47,10 @@
         helper.set('#main-statistics-players-active', 'innerText', statistics.players.active - statistics.players.ai);
         if (statistics.players.ai) {
             helper.set('#main-statistics-players-ai', 'innerText', '+' + statistics.players.ai);
+            helper.set('#main-statistics-players', 'title', 'Die Anzahl ist aufgeteilt in Menschen + KI.');
         } else {
             helper.set('#main-statistics-players-ai', 'innerText', '');
+            helper.set('#main-statistics-players', 'title', null);
         }
         helper.set('#main-statistics-players-inactive', 'innerText', statistics.players.inactive);
         helper.set('#main-statistics-pool-level', 'innerText', statistics.pool.level);

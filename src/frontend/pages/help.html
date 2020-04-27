@@ -1,6 +1,6 @@
 <template>
-  <div class="sx-overlay help-overlay">
-    <div class="sx-overlay-content help-content">
+  <div class="sx-overlay">
+    <div class="sx-overlay-content sx-text">
       <h2>Auszug aus der Spielanleitung</h2>
       <p>
         Ziel jedes Spielers ist es, möglichst viele oder hohe Karten zu sammeln.<br/>
@@ -35,7 +35,7 @@
         Dabei entspricht 1 der niedrigsten und 7 der höchsten Karte im Gewinn.<br/>
         Die Regel wird zunächst auf mehrfach vorhandene Karten angewendet.
       </p>
-      <span id="help-close">×</span>
+      <span class="sx-overlay-close" id="help-close">×</span>
     </div>
   </div>
 </template>
@@ -45,28 +45,3 @@
 
     action.listen('#help-close', 'click', () => state.dispatch('close', 'help'));
 </script>
-
-<style>
-  .help-overlay {
-    padding: 30px;
-  }
-
-  .help-content {
-    max-width: 15cm;
-    margin: 0 auto;
-    text-align: justify;
-    hyphens: auto;
-    position: relative;
-  }
-
-  #help-close {
-    color: #738995;
-    position: absolute;
-    top: 5px;
-    right: 15px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 2em;
-    line-height: 1;
-  }
-</style>

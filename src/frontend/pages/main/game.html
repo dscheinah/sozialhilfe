@@ -58,7 +58,7 @@
                 data[cardLists[id]].forEach((card) => {
                     let li = helper.create('li'), img = helper.create('img'), name = helper.create('small');
                     img.src = images[card.card];
-                    img.width = 80;
+                    img.width = 100;
                     img.alt = cardMapping[card.card];
                     li.appendChild(img);
                     name.innerText = card.player;
@@ -66,6 +66,7 @@
                     name.classList.add('sx-text-center');
                     if (card.player === data.player) {
                         name.classList.add('main-game-winner');
+                        name.title = 'Dieser Spieler hat die Runde gewonnen.';
                     }
                     li.appendChild(name);
                     li.dataset.card = card.player;
@@ -107,7 +108,7 @@
     });
 
     action.listen('#main-game-next', 'click', () => {
-        state.dispatch('loading', 'Warte auf andere Spieler, die Ergebnisse zu bestätigen...');
+        state.dispatch('loading', 'Warte auf alle Spieler, die Ergebnisse zu bestätigen...');
         state.dispatch('next');
     });
     action.listen('#main-game-help', 'click', () => state.dispatch('open', 'help'));
@@ -122,7 +123,6 @@
   .main-game-wrapper {
     position: relative;
     height: 100%;
-    padding-bottom: 2em;
     margin-bottom: 15px;
     box-sizing: border-box;
   }
@@ -131,7 +131,7 @@
     display: block;
     width: 1.5em;
     height: 1.5em;
-    background: #264B61;
+    background: #738995;
     color: white;
     border-radius: 100%;
     cursor: pointer;
@@ -143,9 +143,9 @@
   }
 
   .main-game-next-wrapper {
-    position: absolute;
+    position: sticky;
     right: 0;
-    bottom: -15px;
+    bottom: 0;
     left: 0;
   }
 
@@ -157,7 +157,7 @@
 
   .main-game-card-list {
     margin-top: 0;
-    min-height: 170px;
+    min-height: 200px;
   }
 
   .main-game-card-list li {
@@ -172,11 +172,13 @@
 
   .main-game-card-list small {
     display: block;
+    width: 100px;
   }
 
-  .main-game-winner {
+  .main-game-winner.main-game-winner {
     font-weight: bold;
-    margin-left: -1em;
+    margin-left: -.5em;
+    width: calc(100px + .5em);
   }
 
   .main-game-winner:before {

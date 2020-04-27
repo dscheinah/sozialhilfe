@@ -43,7 +43,11 @@ class Helper {
     set(selector, key, value) {
         let element = this.element(selector);
         if (element) {
-            element[key] = value;
+            if (value === null && element.hasAttribute(key)) {
+                element.removeAttribute(key);
+            } else {
+                element[key] = value;
+            }
         }
     }
 

@@ -6,6 +6,7 @@ module.exports = class Player {
     waiting = 0;
     winner = false;
     help = false;
+    rounds = 0;
 
     constructor(name) {
         this.name = name;
@@ -39,10 +40,11 @@ module.exports = class Player {
     }
 
     commit(profit) {
+        this.rounds++;
         if (profit.length) {
             this.help = false;
+            this.give(profit);
         }
-        this.give(profit);
     }
 
     won() {

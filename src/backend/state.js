@@ -25,6 +25,7 @@ class State {
             let player = new Player(name), playerData = data.players[name];
             player.cards = playerData.cards;
             player.help = playerData.help;
+            player.rounds = playerData.rounds;
             this.players[name] = player;
         });
         this.pool.currentSet = data.pool.currentSet;
