@@ -1,0 +1,27 @@
+<template>
+  <div class="sx-overlay">
+    <div class="sx-overlay-content">
+      <h2>Steuerrückzahlung</h2>
+      <p>Stimmst du für eine Steuerrückzahlung?</p>
+      <div class="sx-buttons">
+        <button id="return-yes">ja</button>
+        <button id="return-no">nein</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+    import {action, state} from '../js/lib/sx.js';
+
+    action.listen('#return-yes', 'click', () => {
+        state.dispatch('loading', true);
+        state.dispatch('return', true);
+    });
+    action.listen('#return-no', 'click', () => {
+        state.dispatch('loading', true);
+        state.dispatch('return', false);
+    });
+
+    state.listen('return', () => state.dispatch('loading', false));
+</script>

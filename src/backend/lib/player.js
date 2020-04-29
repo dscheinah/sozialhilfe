@@ -8,6 +8,7 @@ module.exports = class Player {
     help = false;
     rounds = 0;
     selectTimeout = 0;
+    vote = false;
 
     constructor(name) {
         this.name = name;
@@ -38,6 +39,7 @@ module.exports = class Player {
 
     reset() {
         this.winner = false;
+        this.vote = false;
     }
 
     wait(timeout) {
@@ -69,5 +71,9 @@ module.exports = class Player {
 
     select(timeout) {
         this.selectTimeout = timeout < 0 ? 0 : timeout;
+    }
+
+    voteReturn() {
+        this.vote = true;
     }
 };

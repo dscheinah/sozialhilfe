@@ -21,6 +21,7 @@ state.handle('login', async (payload) => {
     'donate',
     'next',
     'players',
+    'return',
     'select',
     'statistics',
 ].forEach((call) => {
@@ -38,6 +39,7 @@ state.handle('login', async (payload) => {
     'finish',
     'init',
     'players',
+    'return',
     'selecting',
     'statistics',
     'version',
@@ -58,6 +60,7 @@ server.connect();
     'donation',
     'help',
     'message',
+    'return',
 ].forEach((id) => {
     let page = new Page(id);
     loader.add(page.load());
@@ -127,8 +130,7 @@ state.listen('selecting', (payload) => {
 state.listen('select', () => stack.hide('select'));
 state.listen('calculate', () => stack.hide('select'));
 state.listen('commit', () => {
-    stack.hide('donate');
-    stack.hide('accept');
+    ['donate', 'accept', 'return'].forEach(id => stack.hide(id));
 });
 state.listen('donate', (payload) => {
     stack.hide('donate');
@@ -138,6 +140,17 @@ state.listen('donate', (payload) => {
     }
 });
 state.listen('accept', () => stack.hide('accept'));
+state.listen('return', (data) => {
+    if (data.closed) {
+        stack.hide('return');
+    } else {
+        if (data.players.indexOf(state.get('player-name')) >= 0) {
+            stack.show('return');
+        } else {
+            stack.hide('return');
+        }
+    }
+});
 
 action.listen('[title]', 'click', (e) => {
     let target = e.target;

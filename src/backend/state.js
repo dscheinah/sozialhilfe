@@ -107,6 +107,13 @@ class State {
         }
     }
 
+    return() {
+        let amount = Math.floor(this.pool.cards.length / 2 / Object.keys(this.players).length);
+        for (let name in this.players) {
+            this.players[name].give(this.pool.drawCards(amount));
+        }
+    }
+
     commit() {
         for (let name in this.players) {
             let player = this.players[name];

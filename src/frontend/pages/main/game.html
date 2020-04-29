@@ -3,14 +3,13 @@
     <h2>Spiel</h2>
     <h3>Gewinn</h3>
     <ul id="main-game-profit" class="sx-flex-list sx-card-list main-game-card-list"></ul>
-    <div class="sx-buttons">
-      <button id="main-game-donate-profit" disabled>offen spenden</button>
-    </div>
     <h3>Steuern</h3>
     <ul id="main-game-taxes" class="sx-flex-list sx-card-list main-game-card-list"></ul>
     <h3>Aktionen</h3>
     <div class="sx-buttons">
+      <button id="main-game-donate-profit" disabled>offen spenden</button>
       <button id="main-game-donate-hidden" disabled>verdeckt spenden</button>
+      <button id="main-game-return" disabled>Steuerrückzahlung</button>
     </div>
     <div class="sx-next-wrapper">
       <button id="main-game-next" disabled>
@@ -107,6 +106,7 @@
         doForSelf(data, (actions) => {
             state.dispatch('loading', false);
             helper.set('#main-game-next', 'disabled', false);
+            helper.set('#main-game-return', 'disabled', false);
             actions.actions.forEach((action) => {
                 helper.set(actionMapping[action], 'disabled', false);
             });
@@ -125,6 +125,10 @@
             helper.set('#main-game-donate-hidden', 'disabled', true);
         }
     });
+    state.listen('return', () => {
+        state.dispatch('loading', false);
+        helper.set('#main-game-return', 'disabled', true)
+    });
 
     state.handle('sx-show-main', (payload, next) => {
         let calculations = state.get('calculate');
@@ -140,6 +144,10 @@
 
     action.listen('#main-game-donate-profit', 'click', () => state.dispatch('donate-select', 'profit'));
     action.listen('#main-game-donate-hidden', 'click', () => state.dispatch('donate-select', 'hidden'));
+    action.listen('#main-game-return', 'click', () => {
+        state.dispatch('loading', true);
+        state.dispatch('return', true);
+    });
     action.listen('#main-game-next', 'click', () => {
         state.dispatch('loading', 'Warte auf alle Spieler, die Ergebnisse zu bestätigen...');
         state.dispatch('next');
