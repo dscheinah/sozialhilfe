@@ -8,7 +8,7 @@ module.exports = class Prepare extends Game.Base {
             return Game.STATE_INIT;
         }
         let nextState = Game.STATE_CALCULATE, players = state.getActivePlayers(), helpActive = false;
-        for (let i = players.length - 1; i--;) {
+        for (let i = players.length; i--;) {
             let player = players[i];
             player.reset();
             if (player.needsHelp()) {

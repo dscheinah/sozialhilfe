@@ -4,7 +4,7 @@ const state = require('../state.js');
 module.exports = class Select extends Game.Base {
     run(broadcast) {
         let players = state.getActivePlayers(), selectingPlayers = [], nextState = Game.STATE_CALCULATE;
-        for (let i = players.length - 1; i--;) {
+        for (let i = players.length; i--;) {
             let player = players[i], timeout = player.selectTimeout;
             if (player.cards.length > state.playerSelectLimit) {
                 timeout = 0;
