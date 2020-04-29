@@ -8,14 +8,14 @@ module.exports = class Waiting extends Game.Base {
             let timeout = player.waiting;
             if (timeout) {
                 player.wait(timeout - 1);
-                waiting.push({
-                    player: player.name,
-                    timeout: timeout,
-                });
                 if (!player.ai) {
                     nextState = Game.STATE_WAITING;
                 }
             }
+            waiting.push({
+                player: player.name,
+                timeout: timeout,
+            });
         });
         broadcast({
             type: 'waiting',

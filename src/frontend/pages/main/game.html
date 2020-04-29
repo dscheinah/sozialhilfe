@@ -114,8 +114,13 @@
     });
     state.listen('waiting', (data) => {
         doForSelf(data, (waiting) => {
-            helper.set('#main-game-next', 'disabled', false);
             helper.set('#main-game-timer', 'innerText', waiting.timeout);
+            if (waiting.timeout) {
+                helper.set('#main-game-next', 'disabled', false);
+            } else {
+                helper.set('#main-game-next', 'disabled', true);
+                state.dispatch('loading', 'Warte auf alle Spieler, die Ergebnisse zu bestätigen...');
+            }
         });
     });
     state.listen('commit', reset);
