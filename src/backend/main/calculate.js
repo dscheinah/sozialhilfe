@@ -148,7 +148,7 @@ module.exports = class Calculate extends Game.Base {
             }
             taxBase.sort();
 
-            let middleCard = taxBase[Math.floor(taxBase.length / 2)];
+            let middleCard = taxBase[Math.floor((taxBase.length - 1) / 2)];
             taxBase.splice(taxBase.indexOf(middleCard), 1);
             this.setTax(middleCard, taxCount);
 
