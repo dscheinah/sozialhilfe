@@ -38,7 +38,7 @@ module.exports = class Calculate extends Game.Base {
         });
         refresh(['players']);
 
-        let actions = [];
+        let actions = [], returnPossible = Math.floor(this.pool.cards.length / 2 / Object.keys(this.players).length);
         players.forEach((player) => {
             let playerActions = [];
             if (player.cards.length) {
@@ -46,6 +46,9 @@ module.exports = class Calculate extends Game.Base {
             }
             if (player === this.winner) {
                 playerActions.push('donate-profit');
+            }
+            if (returnPossible) {
+                playerActions.push('return');
             }
             actions.push({
                 player: player.name,
