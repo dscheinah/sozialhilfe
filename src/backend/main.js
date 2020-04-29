@@ -36,7 +36,7 @@ module.exports = class Main {
     }
 
     loop() {
-        let activePlayers = state.getActivePlayers(), playerCount = activePlayers.length;
+        let playerCount = state.getActivePlayers().length;
         if (!playerCount) {
             return this.stop();
         } else if (playerCount < state.requiredPlayers) {
@@ -45,6 +45,7 @@ module.exports = class Main {
                 aiPlayers.forEach(player => player.deactivate());
                 return this.stop();
             }
+            state.commit();
             this.gameState = Game.STATE_INIT;
             return;
         }

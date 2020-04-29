@@ -1,7 +1,8 @@
 <template>
-  <h2>Spieler</h2>
-  <ul id="main-players-list" class="sx-flex-list">
-  </ul>
+  <div class="main-players-wrapper">
+    <h2>Spieler</h2>
+    <ul id="main-players-list" class="sx-flex-list"></ul>
+  </div>
 </template>
 
 <script>
@@ -39,8 +40,7 @@
             item.appendChild(table);
         });
         for (let i = players.length; i < length; i++) {
-            let item = items[i];
-            item.parentNode.removeChild(item);
+            list.removeChild(items[i]);
         }
     };
     state.listen('players', players => apply(players));
@@ -51,6 +51,16 @@
 </script>
 
 <style>
+  .main-players-wrapper {
+    position: relative;
+    height: 100%;
+  }
+
+  #main-players-list {
+    overflow: auto;
+    height: calc(100% - 1.5em);
+  }
+
   #main-players-list li {
     width: 95px;
     padding: 10px;

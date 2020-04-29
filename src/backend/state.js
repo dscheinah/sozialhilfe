@@ -12,6 +12,7 @@ class State {
     openProfit = [];
     openTaxes = [];
     playerSelectLimit = 3;
+    donation;
 
     constructor() {
         if (!fs.existsSync(file)) {
@@ -37,16 +38,11 @@ class State {
         this.pool.returnCards(data.openTaxes);
     }
 
-    save() {
-        fs.writeFile(file, JSON.stringify(this), noop);
-    }
-
     createPlayer(name) {
         if (!this.players[name]) {
             let player = new Player(name);
             player.commit(this.pool.drawPlayerBase());
             this.players[name] = player;
-            this.save();
         }
         this.players[name].reset();
         return this.players[name];
@@ -78,18 +74,59 @@ class State {
     setOpenCards(profit, taxes) {
         this.openProfit = profit;
         this.openTaxes = taxes;
-        this.save();
+    }
+
+    donate(cards, player) {
+        if (!this.players[player]) {
+            return [];
+        }
+        let donation = this.removeFromProfit(cards);
+        this.donation = {
+            player: player,
+            cards: donation,
+            accepted: false,
+        }
+        return donation;
+    }
+
+    removeFromProfit(cards) {
+        let removed = [];
+        for (let i = cards.length; i--;) {
+            let card = parseInt(cards[i]), index = this.openProfit.indexOf(card);
+            if (index >= 0) {
+                this.openProfit.splice(index, 1);
+                removed.push(card);
+            }
+        }
+        return removed;
+    }
+
+    acceptDonation() {
+        if (this.donation) {
+            this.donation.accepted = true;
+        }
     }
 
     commit() {
         for (let name in this.players) {
             let player = this.players[name];
-            player.commit(player.winner ? this.openProfit : []);
+            if (player.winner) {
+                player.commit(this.openProfit);
+                if (this.donation && !this.donation.accepted) {
+                    player.give(this.donation.cards);
+                }
+            } else {
+                player.commit();
+            }
+            if (this.donation && this.donation.accepted && this.donation.player === name) {
+                player.give(this.donation.cards);
+            }
         }
+        this.donation = null;
         this.pool.returnCards(this.openTaxes);
         this.openProfit = [];
         this.openTaxes = [];
-        this.save();
+        fs.writeFile(file, JSON.stringify(this), noop);
     }
 }
 

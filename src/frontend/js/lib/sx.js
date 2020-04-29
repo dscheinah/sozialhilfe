@@ -74,14 +74,15 @@ class Loader {
         this.promises.push(promise);
     }
 
-    async run(min) {
-        let start = Date.now();
+    async run() {
+        let count = 0;
         while (this.promises.length) {
+            count += this.promises.length
             let promises = this.promises;
             this.promises = [];
             await Promise.all(promises);
         }
-        return new Promise(resolve => setTimeout(resolve, min - Date.now() + start));
+        return new Promise(resolve => setTimeout(resolve, count * 50));
     }
 }
 
@@ -101,10 +102,13 @@ class State {
             }
         };
         let handle = (result) => {
+            if (result === undefined) {
+                result = null;
+            }
             this.state[name] = result;
             let listeners = this.listeners[name];
             if (listeners) {
-                listeners.forEach(callback => callback(result));
+                listeners.forEach(callback => callback(JSON.parse(JSON.stringify(result))));
             }
         };
         let result = dispatch(payload, 0);
@@ -137,7 +141,7 @@ class State {
         this.state[name] = value;
         let listeners = this.listeners[name];
         if (listeners) {
-            listeners.forEach(callback => callback(value));
+            listeners.forEach(callback => callback(JSON.parse(JSON.stringify(value))));
         }
     }
 }

@@ -1,0 +1,59 @@
+<template>
+  <div class="sx-overlay">
+    <div class="sx-overlay-content">
+      <h2>Spende</h2>
+      <p>Du hast eine Spende von <span id="donation-player"></span> erhalten.</p>
+      <ul id="donation-cards" class="sx-flex-list sx-card-list"></ul>
+      <span class="sx-overlay-close" id="donation-close">×</span>
+    </div>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+    import {images, cards as cardMapping} from '../js/mapping.js';
+
+    let players = [], cards = [];
+    const render = () => {
+        let playerList = helper.element('#donation-player'), cardList = helper.element('#donation-cards');
+        let playerCount = players.length;
+        if (!playerCount || !cards.length || !playerList || !cardList) {
+            return;
+        }
+        playerList.innerText = players[0];
+        if (playerCount > 1) {
+            for (let i = 1; i < playerCount - 1; i++) {
+                playerList.innerText += ', ' + players[i];
+            }
+            playerList.innerText += ' und ' + players[playerCount - 1];
+        }
+        cardList.innerHTML = '';
+        cards.forEach((card) => {
+            let li = helper.create('li'), img = helper.create('img');
+            img.src = images[card];
+            img.width = 50;
+            img.alt = cardMapping[card];
+            li.appendChild(img);
+            cardList.appendChild(li);
+        });
+    };
+
+    state.listen('donate', (payload) => {
+        if (!payload.hidden || payload.target !== state.get('player-name')) {
+            return;
+        }
+        players.push(payload.player);
+        cards.push(...payload.cards);
+        render();
+    });
+    state.handle('sx-show-donation', (payload, next) => {
+        render();
+        return next(payload);
+    });
+
+    action.listen('#donation-close', 'click', () => {
+        players = [];
+        cards = [];
+        state.dispatch('close', 'donation');
+    });
+</script>

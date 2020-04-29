@@ -1,6 +1,8 @@
 const types = {
+    accept: new (require('./event/accept.js'))(),
     ai: new (require('./event/ai.js'))(),
     chat: new (require('./event/chat.js'))(),
+    donate: new (require('./event/donate.js'))(),
     login: new (require('./event/login.js'))(),
     next: new (require('./event/next.js'))(),
     players: new (require('./event/players.js'))(),

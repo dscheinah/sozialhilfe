@@ -1,0 +1,55 @@
+<template>
+  <div class="sx-overlay">
+    <div class="sx-overlay-content">
+      <h2>Spende bestätigen</h2>
+      <p>Möchtest du die Spende annehmen?</p>
+      <ul id="accept-cards" class="sx-flex-list sx-card-list"></ul>
+      <div class="sx-buttons">
+        <button id="accept-yes">ja</button>
+        <button id="accept-no">nein</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+    import {images, cards as cardMapping} from '../js/mapping.js';
+
+    let cards = [];
+    const render = () => {
+        let cardList = helper.element('#accept-cards');
+        if (!cardList) {
+            return;
+        }
+        cardList.innerHTML = '';
+        cards.forEach((card) => {
+            let li = helper.create('li'), img = helper.create('img');
+            img.src = images[card];
+            img.width = 50;
+            img.alt = cardMapping[card];
+            li.appendChild(img);
+            cardList.appendChild(li);
+        });
+    };
+
+    state.listen('donate', (payload) => {
+        if (payload.hidden || payload.target !== state.get('player-name')) {
+            return;
+        }
+        cards = payload.cards;
+        render();
+    });
+    state.handle('sx-show-accept', (payload, next) => {
+        render();
+        return next(payload);
+    });
+
+    action.listen('#accept-yes', 'click', () => {
+        state.dispatch('loading', true);
+        state.dispatch('accept', true);
+    });
+    action.listen('#accept-no', 'click', () => state.dispatch('close', 'accept'));
+
+    state.listen('accept', () => state.dispatch('loading', false));
+</script>

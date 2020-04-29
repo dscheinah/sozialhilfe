@@ -1,13 +1,16 @@
 <template>
   <div class="main-game-wrapper">
     <h2>Spiel</h2>
-    <div>
-      <h3>Gewinn</h3>
-      <ul id="main-game-profit" class="sx-flex-list sx-card-list main-game-card-list"></ul>
+    <h3>Gewinn</h3>
+    <ul id="main-game-profit" class="sx-flex-list sx-card-list main-game-card-list"></ul>
+    <div class="sx-buttons">
+      <button id="main-game-donate-profit" disabled>offen spenden</button>
     </div>
-    <div>
-      <h3>Steuern</h3>
-      <ul id="main-game-taxes" class="sx-flex-list sx-card-list main-game-card-list"></ul>
+    <h3>Steuern</h3>
+    <ul id="main-game-taxes" class="sx-flex-list sx-card-list main-game-card-list"></ul>
+    <h3>Aktionen</h3>
+    <div class="sx-buttons">
+      <button id="main-game-donate-hidden" disabled>verdeckt spenden</button>
     </div>
     <div class="sx-next-wrapper">
       <button id="main-game-next" disabled>
@@ -22,12 +25,19 @@
     import {action, helper, state} from '../../js/lib/sx.js';
     import {cards as cardMapping, images} from '../../js/mapping.js';
 
+    const actionMapping = {
+        'donate-profit': '#main-game-donate-profit',
+        'donate-hidden': '#main-game-donate-hidden',
+    };
+
     const reset = () => {
         if (!helper.element('.main-game-wrapper')) {
             return;
         }
         state.dispatch('loading', true);
         [
+            '#main-game-donate-profit',
+            '#main-game-donate-visible',
             '#main-game-next',
         ].forEach(button => helper.set(button, 'disabled', true));
         [
@@ -53,39 +63,53 @@
         }
         let cardLists = {'#main-game-profit': 'profit', '#main-game-taxes': 'taxes'}, cards = [];
         for (let id in cardLists) {
-            helper.set(id, 'innerHTML', null);
             let list = helper.element(id);
             if (list) {
-                data[cardLists[id]].forEach((card) => {
-                    let li = helper.create('li'), img = helper.create('img'), name = helper.create('small');
-                    img.src = images[card.card];
-                    img.width = 100;
-                    img.alt = cardMapping[card.card];
-                    li.appendChild(img);
-                    name.innerText = card.player;
-                    name.classList.add('sx-ellipsis');
-                    name.classList.add('sx-text-center');
-                    if (card.player === data.player) {
-                        name.classList.add('main-game-winner');
-                        name.title = 'Dieser Spieler hat die Runde gewonnen.';
-                    }
-                    li.appendChild(name);
-                    li.dataset.card = card.player;
-                    list.appendChild(li);
-                    cards.push(li);
-                });
+                if (data.mark) {
+                    let items = list.children;
+                    data[cardLists[id]].forEach((card, index) => {
+                        if (card.mark) {
+                            items[index].dataset.mark = card.mark;
+                        }
+                    });
+                } else {
+                    list.innerHTML = '';
+                    data[cardLists[id]].forEach((card) => {
+                        let li = helper.create('li'), img = helper.create('img'), name = helper.create('small');
+                        img.src = images[card.card];
+                        img.width = 100;
+                        img.alt = cardMapping[card.card];
+                        li.appendChild(img);
+                        name.innerText = card.player;
+                        name.classList.add('sx-ellipsis');
+                        name.classList.add('sx-text-center');
+                        if (card.player === data.player) {
+                            name.classList.add('main-game-winner');
+                            name.title = 'Dieser Spieler hat die Runde gewonnen.';
+                        }
+                        li.appendChild(name);
+                        li.dataset.card = card.player;
+                        list.appendChild(li);
+                        cards.push(li);
+                    });
+                }
             }
         }
-        setTimeout(() => cards.forEach(card => card.classList.add('sx-visible')), 490);
-        state.dispatch('draw-animation-ready', true);
+        if (!data.mark) {
+            setTimeout(() => cards.forEach(card => card.classList.add('sx-visible')), 490);
+            state.dispatch('draw-animation-ready', true);
+        }
     };
 
     state.listen('init', reset);
     state.listen('calculate', showCalculations);
     state.listen('actions', (data) => {
-        doForSelf(data, () => {
+        doForSelf(data, (actions) => {
             state.dispatch('loading', false);
             helper.set('#main-game-next', 'disabled', false);
+            actions.actions.forEach((action) => {
+                helper.set(actionMapping[action], 'disabled', false);
+            });
         });
     });
     state.listen('waiting', (data) => {
@@ -95,6 +119,12 @@
         });
     });
     state.listen('commit', reset);
+    state.listen('donate', (payload) => {
+        if (payload && payload.player === state.get('player-name')) {
+            helper.set('#main-game-donate-profit', 'disabled', true);
+            helper.set('#main-game-donate-hidden', 'disabled', true);
+        }
+    });
 
     state.handle('sx-show-main', (payload, next) => {
         let calculations = state.get('calculate');
@@ -108,6 +138,8 @@
         next(payload);
     });
 
+    action.listen('#main-game-donate-profit', 'click', () => state.dispatch('donate-select', 'profit'));
+    action.listen('#main-game-donate-hidden', 'click', () => state.dispatch('donate-select', 'hidden'));
     action.listen('#main-game-next', 'click', () => {
         state.dispatch('loading', 'Warte auf alle Spieler, die Ergebnisse zu bestätigen...');
         state.dispatch('next');
@@ -144,16 +176,33 @@
   }
 
   .main-game-card-list {
-    margin-top: 0;
+    margin-top: .5em;
     min-height: 200px;
   }
 
   .main-game-card-list li {
+    position: relative;
     opacity: 0;
   }
+
   .main-game-card-list small {
     display: block;
     width: 100px;
+  }
+
+  .main-game-card-list [data-mark] img {
+    opacity: .3;
+  }
+
+  .main-game-card-list [data-mark]:before {
+    content: "\2714" attr(data-mark);
+    position: absolute;
+    top: -1.5em;
+    right: 0;
+    left: 0;
+    text-align: center;
+    font-size: .8em;
+    text-transform: uppercase;
   }
 
   .main-game-winner.main-game-winner {

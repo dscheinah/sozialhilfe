@@ -1,0 +1,148 @@
+<template>
+  <div class="sx-overlay">
+    <form id="donate-form" class="sx-overlay-content">
+      <h2>Spende auswählen</h2>
+      <select name="target" id="donate-player" required></select>
+      <label for="donate-player">Spieler</label>
+      <div id="donate-select-amount" class="donate-hidden">
+        <div class="sx-input">
+          <input name="amount" id="donate-amount-1" type="radio" value="1"/>
+          <label for="donate-amount-1">1 Karte</label>
+          <input name="amount" id="donate-amount-2" type="radio" value="2"/>
+          <label for="donate-amount-2">2 Karten</label>
+        </div>
+      </div>
+      <div id="donate-select-cards" class="donate-hidden">
+        <p>Wähle die Karten, die gespendet werden sollen:</p>
+        <ul id="donate-cards" class="sx-flex-list sx-card-list"></ul>
+      </div>
+      <button id="donate-donate" type="submit">spenden</button>
+      <span id="donate-error" class="sx-error donate-hidden">Bitte wähle mindestens eine Karte.</span>
+      <span class="sx-overlay-close" id="donate-close">×</span>
+    </form>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+    import {images, cards as cardMapping} from '../js/mapping.js';
+
+    let type, players, cards;
+    const apply = () => {
+        switch (type) {
+            case 'profit':
+                helper.style('#donate-select-amount', 'display', null);
+                helper.style('#donate-select-cards', 'display', 'block');
+                break;
+            case 'hidden':
+                helper.style('#donate-select-amount', 'display', 'block');
+                helper.style('#donate-select-cards', 'display', null);
+                break;
+        }
+        let select = helper.element('#donate-player');
+        if (select && players) {
+            let options = select.children, length = options.length;
+            players.forEach((player, index) => {
+                let option = options[index];
+                if (!option) {
+                    option = helper.create('option');
+                    select.appendChild(option);
+                }
+                option.value = player;
+                option.innerText = player;
+            });
+            for (let i = players.length; i < length; i++) {
+                select.removeChild(options[i]);
+            }
+        }
+        let list = helper.element('#donate-cards');
+        if (list && cards) {
+            list.innerHTML = '';
+            cards.forEach((card) => {
+                let li = helper.create('li'), label = helper.create('label');
+                let img = helper.create('img'), input = helper.create('input');
+                img.src = images[card];
+                img.width = 100;
+                img.alt = cardMapping[card];
+                input.type = 'checkbox';
+                input.name = 'cards';
+                input.value = card;
+                label.appendChild(img);
+                label.appendChild(input);
+                li.appendChild(label);
+                list.appendChild(li);
+            });
+        }
+    };
+
+    state.listen('calculate', (data) => {
+        cards = [];
+        data.profit.forEach((card) => {
+            if (!card.mark) {
+                cards.push(card.card);
+            }
+        });
+        apply();
+    });
+    state.listen('players', (data) => {
+        players = [''];
+        let name = state.get('player-name');
+        data.forEach((player) => {
+            if (player.name !== name) {
+                players.push(player.name);
+            }
+        });
+        players.sort();
+        apply();
+    });
+
+    state.handle('donate-select', (payload, next) => {
+        type = payload;
+        apply();
+        return next(payload);
+    });
+    state.handle('sx-show-donate', (payload, next) => {
+        apply();
+        return next(payload);
+    });
+
+    action.listen('#donate-form', 'submit', (e) => {
+        e.preventDefault();
+        let form = new FormData(e.target), data = {
+            hidden: type === 'hidden',
+            target: form.get('target'),
+            amount: form.get('amount'),
+            cards: form.getAll('cards'),
+        };
+        if (!data.amount && (!data.cards || !data.cards.length)) {
+            helper.style('#donate-error', 'display', 'block');
+        } else {
+            helper.style('#donate-error', 'display', null);
+            state.dispatch('loading', true);
+            state.dispatch('donate', data);
+        }
+    });
+    action.listen('#donate-close', 'click', () => state.dispatch('close', 'donate'));
+
+    state.listen('donate', (payload) => {
+        if (payload.player === state.get('player-name')) {
+            state.dispatch('loading', false);
+        }
+    });
+</script>
+
+<style>
+  .donate-hidden {
+    display: none;
+  }
+
+  #donate-cards label {
+    position: relative;
+  }
+
+  #donate-cards input {
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+</style>

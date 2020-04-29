@@ -10,7 +10,7 @@ module.exports = class Calculate extends Game.Base {
     winner;
 
     run(broadcast, refresh) {
-        let players = state.getActivePlayers(), actions = [];
+        let players = state.getActivePlayers();
         players.forEach((player) => {
             if (!player.cards.length) {
                 broadcast({
@@ -21,10 +21,6 @@ module.exports = class Calculate extends Game.Base {
             }
             if (!player.ai) {
                 player.wait(state.waitTimeout);
-                actions.push({
-                    player: player.name,
-                    actions: [],
-                });
             }
         });
 
@@ -41,6 +37,21 @@ module.exports = class Calculate extends Game.Base {
             },
         });
         refresh(['players']);
+
+        let actions = [];
+        players.forEach((player) => {
+            let playerActions = [];
+            if (player.cards.length) {
+                playerActions.push('donate-hidden');
+            }
+            if (player === this.winner) {
+                playerActions.push('donate-profit');
+            }
+            actions.push({
+                player: player.name,
+                actions: playerActions,
+            });
+        });
         broadcast({
             type: 'actions',
             payload: actions,

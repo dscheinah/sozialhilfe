@@ -15,8 +15,10 @@ state.handle('login', async (payload) => {
 });
 
 [
+    'accept',
     'ai',
     'chat',
+    'donate',
     'next',
     'players',
     'select',
@@ -25,12 +27,14 @@ state.handle('login', async (payload) => {
     state.handle(call, payload => server.handle(call, payload));
 });
 [
+    'accept',
     'actions',
     'calculate',
     'cards',
     'chat',
     'commit',
     'dead',
+    'donate',
     'finish',
     'init',
     'players',
@@ -49,6 +53,9 @@ server.connect();
     'finish',
     'dead',
     'select',
+    'accept',
+    'donate',
+    'donation',
     'help',
     'message',
 ].forEach((id) => {
@@ -89,6 +96,10 @@ state.handle('close', (page, next) => {
     return next(page);
 });
 state.handle('message', message => message);
+state.handle('donate-select', (type, next) => {
+    stack.show('donate');
+    return next(type);
+});
 
 state.listen('login', (success) => {
     if (success) {
@@ -115,6 +126,18 @@ state.listen('selecting', (payload) => {
 });
 state.listen('select', () => stack.hide('select'));
 state.listen('calculate', () => stack.hide('select'));
+state.listen('commit', () => {
+    stack.hide('donate');
+    stack.hide('accept');
+});
+state.listen('donate', (payload) => {
+    stack.hide('donate');
+    if (payload.target === state.get('player-name') && payload.cards.length) {
+        state.dispatch('loading', false);
+        stack.show(payload.hidden ? 'donation' : 'accept');
+    }
+});
+state.listen('accept', () => stack.hide('accept'));
 
 action.listen('[title]', 'click', (e) => {
     let target = e.target;
@@ -127,7 +150,7 @@ action.listen('[title]', 'click', (e) => {
     }
 });
 
-loader.run(500).then(() => {
+loader.run().then(() => {
     stack.enable(helper.element('#sx-stack'));
     stack.show('login');
 });

@@ -32,6 +32,10 @@ module.exports = class Player {
         return this.cards.pop();
     }
 
+    drawCards(amount) {
+        return this.cards.splice(-amount, amount);
+    }
+
     reset() {
         this.winner = false;
     }
@@ -42,7 +46,7 @@ module.exports = class Player {
 
     commit(profit) {
         this.rounds++;
-        if (profit.length) {
+        if (profit && profit.length) {
             this.help = false;
             this.give(profit);
         }

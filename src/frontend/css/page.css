@@ -1,8 +1,3 @@
-label {
-    display: block;
-    margin-bottom: 1em;
-}
-
 h1, h2, h3 {
     margin-top: 0;
 }
@@ -27,6 +22,17 @@ button, [type=submit] {
     cursor: pointer;
 }
 
+.sx-buttons {
+    display: flex;
+    margin: 0 -.5em .5em 0;
+}
+
+.sx-buttons > * {
+    margin-right: .5em;
+    flex: 0 1 auto;
+    width: auto;
+}
+
 [disabled] {
     cursor: default;
 }
@@ -35,7 +41,7 @@ button, [type=submit] {
     cursor: move;
 }
 
-input, button {
+input, button, select {
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
@@ -43,8 +49,29 @@ input, button {
     line-height: 1;
 }
 
+input[type=radio], input[type=checkbox] {
+    width: 1em;
+    height: 1em;
+    cursor: pointer;
+}
+
 label {
+    display: block;
+    margin-bottom: 1em;
     font-size: .8em;
+    cursor: pointer;
+}
+
+.sx-input {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 1em;
+}
+
+.sx-input label {
+    margin: 0 1em 0 .5em;
+    font-size: 1em;
+    line-height: 1;
 }
 
 [title] {
@@ -54,7 +81,7 @@ label {
 
 .sx-overlay {
     position: fixed;
-    background: rgba(255, 255, 255, .8);
+    background: rgba(255, 255, 255, .5);
     top: 0;
     right: 0;
     bottom: 0;
@@ -70,6 +97,8 @@ label {
     padding: 2em;
     margin: 0 auto;
     position: relative;
+    max-width: 1200px;
+    box-sizing: border-box;
 }
 
 .sx-overlay-close {
@@ -84,7 +113,7 @@ label {
 }
 
 .sx-text {
-    max-width: 15cm;
+    max-width: 17cm;
     text-align: justify;
     hyphens: auto;
 }

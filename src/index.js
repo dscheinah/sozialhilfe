@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const version = 'v0.3a';
+const version = 'v0.4a';
 
 const frontend = new (require('node-static').Server)(__dirname + '/frontend');
 
