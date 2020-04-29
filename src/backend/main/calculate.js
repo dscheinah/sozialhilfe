@@ -38,7 +38,7 @@ module.exports = class Calculate extends Game.Base {
         });
         refresh(['players']);
 
-        let actions = [], returnPossible = Math.floor(this.pool.cards.length / 2 / Object.keys(this.players).length);
+        let actions = [], returnPossible = Math.floor(state.pool.cards.length / 2 / Object.keys(state.players).length);
         players.forEach((player) => {
             let playerActions = [];
             if (player.cards.length) {
