@@ -3,10 +3,6 @@ const state = require('../state.js');
 
 module.exports = class Prepare extends Game.Base {
     run(broadcast, refresh) {
-        if (state.pool.cards.length === 0) {
-            broadcast({type: 'finish', payload: true});
-            return Game.STATE_INIT;
-        }
         let nextState = Game.STATE_CALCULATE, players = state.getActivePlayers(), helpActive = false;
         for (let i = players.length; i--;) {
             let player = players[i];
