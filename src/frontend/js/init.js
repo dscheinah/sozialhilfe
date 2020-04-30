@@ -137,8 +137,11 @@ state.listen('commit', () => {
     ['donate', 'accept', 'return'].forEach(id => stack.hide(id));
 });
 state.listen('donate', (payload) => {
-    stack.hide('donate');
-    if (payload.target === state.get('player-name') && payload.cards.length) {
+    let name = state.get('player-name');
+    if (payload.player === name) {
+        stack.hide('donate');
+    }
+    if (payload.target === name && payload.cards.length) {
         state.dispatch('loading', false);
         stack.show(payload.hidden ? 'donation' : 'accept');
     }
