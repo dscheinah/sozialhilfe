@@ -31,6 +31,7 @@ button, [type=submit] {
     margin-right: .5em;
     flex: 0 1 auto;
     width: auto;
+    flex-wrap: wrap;
 }
 
 [disabled] {
