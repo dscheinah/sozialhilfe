@@ -103,6 +103,17 @@
     });
     state.handle('sx-show-donate', (payload, next) => {
         apply();
+        let donate = state.get('donate');
+        if (donate) {
+            let option = helper.element(`#donate-player [value=${donate.target}]`);
+            if (option) {
+                option.selected = true;
+            }
+            let radio = helper.element(`#donate-amount-${donate.cards.length}`);
+            if (radio) {
+                radio.checked = true;
+            }
+        }
         return next(payload);
     });
 
