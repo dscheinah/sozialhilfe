@@ -66,6 +66,10 @@
         state.dispatch('select', cards);
     });
 
+    const resetDrag = (e) => {
+        e.preventDefault();
+        helper.elements('.select-drag').forEach(element => element.classList.remove('select-drag'));
+    };
     let source, target;
     action.listen('#select-list li', 'dragstart', (e) => {
         source = e.target;
@@ -84,15 +88,25 @@
         target.classList.add('select-drag');
     });
     action.listen('#select-list li', 'drop', (e) => {
-        e.preventDefault();
+        resetDrag(e);
         target.parentNode.insertBefore(source.cloneNode(true), target);
         source.parentNode.insertBefore(target, source);
         source.parentNode.removeChild(source);
-        helper.elements('.select-drag').forEach(element => element.classList.remove('select-drag'));
     });
+    action.listen('#select-list li', 'dragleave', resetDrag);
+    action.listen('#select-list li', 'dragend', resetDrag);
 </script>
 
 <style>
+  #select-list {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  #select-list li:last-child {
+    flex: 1 1 auto;
+  }
+
   .select-drag {
     opacity: .3;
   }
