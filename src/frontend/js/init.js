@@ -111,9 +111,13 @@ state.listen('login', (success) => {
     }
 });
 state.listen('message', () => stack.show('message'));
-state.listen('finish', () => stack.show('finish'));
+state.listen('finish', () => {
+    state.dispatch('loading', false);
+    stack.show('finish');
+});
 state.listen('dead', (name) => {
     if (name === state.get('player-name')) {
+        state.dispatch('loading', false);
         stack.show('dead');
     }
 });
