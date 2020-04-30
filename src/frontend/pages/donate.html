@@ -27,7 +27,7 @@
     import {action, helper, state} from '../js/lib/sx.js';
     import {images, cards as cardMapping} from '../js/mapping.js';
 
-    let type, players, cards;
+    let type, players, cards, donate;
     const apply = () => {
         switch (type) {
             case 'profit':
@@ -103,7 +103,6 @@
     });
     state.handle('sx-show-donate', (payload, next) => {
         apply();
-        let donate = state.get('donate');
         if (donate) {
             let option = helper.element(`#donate-player [value=${donate.target}]`);
             if (option) {
@@ -137,6 +136,7 @@
 
     state.listen('donate', (payload) => {
         if (payload.player === state.get('player-name')) {
+            donate = payload;
             state.dispatch('loading', false);
         }
     });
