@@ -9,6 +9,9 @@ module.exports = class Prepare extends Game.Base {
         }
         for (let i = players.length; i--;) {
             let player = players[i];
+            if (player.ai && !player.savings.length && player.cards.length < 10) {
+                player.resetPrivate();
+            }
             if (player.needsHelp()) {
                 if (player.private) {
                     player.useSavings();
