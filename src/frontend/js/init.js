@@ -21,7 +21,9 @@ state.handle('login', async (payload) => {
     'donate',
     'next',
     'players',
+    'private',
     'return',
+    'save',
     'select',
     'statistics',
 ].forEach((call) => {
@@ -40,6 +42,7 @@ state.handle('login', async (payload) => {
     'init',
     'players',
     'return',
+    'save',
     'selecting',
     'statistics',
     'version',
@@ -61,6 +64,8 @@ server.connect();
     'help',
     'message',
     'return',
+    'private',
+    'save',
 ].forEach((id) => {
     let page = new Page(id);
     loader.add(page.load());
@@ -102,6 +107,14 @@ state.handle('message', message => message);
 state.handle('donate-select', (type, next) => {
     stack.show('donate');
     return next(type);
+});
+state.handle('private-select', (payload, next) => {
+    stack.show('private');
+    return next(payload);
+});
+state.handle('save-select', (payload, next) => {
+    stack.show('save');
+    return next(payload);
 });
 
 state.listen('login', (success) => {
@@ -158,6 +171,8 @@ state.listen('return', (data) => {
         }
     }
 });
+state.listen('private', () => stack.hide('private'));
+state.listen('save', () => stack.hide('save'));
 
 action.listen('[title]', 'click', (e) => {
     let target = e.target;

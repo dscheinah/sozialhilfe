@@ -4,17 +4,23 @@ const state = require('../state.js');
 module.exports = class Prepare extends Game.Base {
     run(broadcast, refresh) {
         let nextState = Game.STATE_CALCULATE, players = state.getActivePlayers(), helpActive = false;
+        for (let name in state.players) {
+            state.players[name].reset();
+        }
         for (let i = players.length; i--;) {
             let player = players[i];
-            player.reset();
             if (player.needsHelp()) {
-                let helpCards = state.pool.drawCards(state.pool.helpAmount);
-                if (helpCards.length < state.pool.helpAmount) {
-                    broadcast({type: 'finish', payload: true});
-                    return Game.STATE_INIT;
+                if (player.private) {
+                    player.useSavings();
+                } else {
+                    let helpCards = state.pool.drawCards(state.pool.helpAmount);
+                    if (helpCards.length < state.pool.helpAmount) {
+                        broadcast({type: 'finish', payload: true});
+                        return Game.STATE_INIT;
+                    }
+                    helpActive = true;
+                    player.give(helpCards);
                 }
-                helpActive = true;
-                player.give(helpCards);
             }
             if (player.cards.length > 1 && player.cards.length <= state.playerSelectLimit && !player.ai) {
                 player.select(state.waitTimeout);

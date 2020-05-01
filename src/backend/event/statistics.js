@@ -9,6 +9,7 @@ module.exports = class Statistics extends require('../lib/handler.js') {
                 ai: state.getAiPlayers().length,
                 inactive: state.getInactivePlayers().length,
                 required: state.requiredPlayers,
+                private: state.getPrivatePlayers().length,
             },
             pool: {
                 cards: state.pool.cards.length,

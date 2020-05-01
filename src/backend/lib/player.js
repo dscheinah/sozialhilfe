@@ -9,6 +9,8 @@ module.exports = class Player {
     rounds = 0;
     selectTimeout = 0;
     vote = false;
+    private = false;
+    savings = [];
 
     constructor(name) {
         this.name = name;
@@ -40,6 +42,9 @@ module.exports = class Player {
     reset() {
         this.winner = false;
         this.vote = false;
+        if (this.private) {
+            this.help = false;
+        }
     }
 
     wait(timeout) {
@@ -75,5 +80,22 @@ module.exports = class Player {
 
     voteReturn() {
         this.vote = true;
+    }
+
+    makePrivate() {
+        this.private = true;
+    }
+
+    resetPrivate() {
+        this.private = false;
+    }
+
+    save(cards) {
+        this.savings.push(...cards);
+    }
+
+    useSavings() {
+        this.give(this.savings);
+        this.savings = [];
     }
 };

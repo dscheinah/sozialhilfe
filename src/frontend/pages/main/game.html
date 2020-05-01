@@ -5,8 +5,10 @@
     <ul id="main-game-profit" class="sx-flex-list sx-card-list main-game-card-list"></ul>
     <h3>Steuern</h3>
     <ul id="main-game-taxes" class="sx-flex-list sx-card-list main-game-card-list"></ul>
-    <h3>Aktionen</h3>
     <div class="sx-buttons">
+      <button id="main-game-save" data-type="private" class="main-game-hidden" disabled>sparen</button>
+      <button id="main-game-pool" data-type="private" class="main-game-hidden" disabled>staatlich versichern</button>
+      <button id="main-game-private" data-type="pool" class="main-game-hidden" disabled>privat versichern</button>
       <button id="main-game-donate-profit" disabled>offen spenden</button>
       <button id="main-game-donate-hidden" disabled>verdeckt spenden</button>
       <button id="main-game-return" disabled>Steuerrückzahlung</button>
@@ -28,6 +30,9 @@
         'donate-profit': '#main-game-donate-profit',
         'donate-hidden': '#main-game-donate-hidden',
         'return': '#main-game-return',
+        'private': '#main-game-private',
+        'pool': '#main-game-pool',
+        'save': '#main-game-save',
     };
 
     const reset = () => {
@@ -39,6 +44,9 @@
             '#main-game-donate-profit',
             '#main-game-donate-visible',
             '#main-game-next',
+            '#main-game-private',
+            '#main-game-pool',
+            '#main-game-save',
         ].forEach(button => helper.set(button, 'disabled', true));
         [
             '#main-game-profit',
@@ -103,6 +111,20 @@
 
     state.listen('init', reset);
     state.listen('calculate', showCalculations);
+    state.listen('players', (players) => {
+        let name = state.get('player-name');
+        players.forEach((player) => {
+            if (player.name === name) {
+                if (player.private) {
+                    helper.elements('[data-type=private]').forEach(element => element.style.display = 'block');
+                    helper.elements('[data-type=pool]').forEach(element => element.style.display = null);
+                } else {
+                    helper.elements('[data-type=pool]').forEach(element => element.style.display = 'block');
+                    helper.elements('[data-type=private]').forEach(element => element.style.display = null);
+                }
+            }
+        });
+    });
     state.listen('actions', (data) => {
         doForSelf(data, (actions) => {
             state.dispatch('loading', false);
@@ -132,8 +154,17 @@
     });
     state.listen('return', () => {
         state.dispatch('loading', false);
-        helper.set('#main-game-return', 'disabled', true)
+        helper.set('#main-game-return', 'disabled', true);
     });
+    state.listen('private', (payload) => {
+        helper.set('#main-game-private', 'disabled', true);
+        if (!payload) {
+            state.dispatch('message', 'Ein anderer Spieler war leider schneller, sodass du dich nicht privat versichern konntest.');
+        }
+    });
+    state.listen('save', () => {
+        helper.set('#main-game-save', 'disabled', true);
+    })
 
     state.handle('sx-show-main', (payload, next) => {
         let calculations = state.get('calculate');
@@ -158,6 +189,9 @@
         state.dispatch('next');
     });
     action.listen('#main-game-help', 'click', () => state.dispatch('open', 'help'));
+    action.listen('#main-game-private', 'click', () => state.dispatch('private-select', true));
+    action.listen('#main-game-pool', 'click', () => state.dispatch('private-select', false));
+    action.listen('#main-game-save', 'click', () => state.dispatch('save-select'));
 
     state.listen('next', () => {
         helper.set('#main-game-timer', 'innerHTML', null);
@@ -216,6 +250,10 @@
     text-align: center;
     font-size: .8em;
     text-transform: uppercase;
+  }
+
+  .main-game-hidden {
+    display: none;
   }
 
   .main-game-winner.main-game-winner {

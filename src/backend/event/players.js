@@ -13,6 +13,8 @@ module.exports = class Players extends require('../lib/handler.js') {
                 name: player.name,
                 cards: length < 10 ? length : Math.round(length / 10) * 10,
                 score: score > 9999 ? 9999 : score,
+                private: player.private,
+                savings: Math.round(player.savings.length / 10) * 10,
             });
         });
         return players;

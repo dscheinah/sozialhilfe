@@ -1,0 +1,81 @@
+<template>
+  <div class="sx-overlay">
+    <form id="save-form" class="sx-overlay-content">
+      <h2>Rücklage auswählen</h2>
+      <p>Wähle die Karten, die für die Rücklage verwendet werden sollen:</p>
+      <ul id="save-cards" class="sx-flex-list sx-card-list"></ul>
+      <button id="save-save" type="submit">sparen</button>
+      <span id="save-error" class="sx-error">Bitte wähle mindestens eine Karte.</span>
+      <span class="sx-overlay-close" id="save-close">×</span>
+    </form>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+    import {images, cards as cardMapping} from '../js/mapping.js';
+
+    let cards;
+    const apply = () => {
+        let list = helper.element('#save-cards');
+        if (!list || !cards) {
+            return;
+        }
+        list.innerHTML = '';
+        cards.forEach((card) => {
+            let li = helper.create('li'), label = helper.create('label');
+            let img = helper.create('img'), input = helper.create('input');
+            img.src = images[card];
+            img.width = 100;
+            img.alt = cardMapping[card];
+            input.type = 'checkbox';
+            input.name = 'cards';
+            input.value = card;
+            label.appendChild(img);
+            label.appendChild(input);
+            li.appendChild(label);
+            list.appendChild(li);
+        });
+    };
+
+    state.listen('calculate', (data) => {
+        cards = [];
+        data.profit.forEach((card) => {
+            if (!card.mark) {
+                cards.push(card.card);
+            }
+        });
+        apply();
+    });
+    state.handle('sx-show-save', (payload, next) => {
+        apply();
+        return next(payload);
+    });
+
+    action.listen('#save-form', 'submit', (e) => {
+        e.preventDefault();
+        let form = new FormData(e.target), data = {
+            cards: form.getAll('cards'),
+        };
+        if (!data.cards || !data.cards.length) {
+            helper.style('#save-error', 'display', 'block');
+        } else {
+            helper.style('#save-error', 'display', null);
+            state.dispatch('loading', true);
+            state.dispatch('save', data.cards);
+        }
+    });
+    action.listen('#save-close', 'click', () => state.dispatch('close', 'save'));
+
+    state.listen('save', (payload) => {
+        if (payload.player === state.get('player-name')) {
+            state.dispatch('loading', false);
+        }
+    });
+</script>
+
+<style>
+  #save-error {
+    display: none;
+  }
+</style>

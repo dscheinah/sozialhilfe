@@ -1,0 +1,61 @@
+<template>
+  <div class="sx-overlay">
+    <div class="sx-overlay-content">
+      <div id="private-private" class="private-hidden">
+        <h1>Privatversicherung</h1>
+        <p>Die Änderung der Versicherung erfolgt mit der nächsten Runde.</p>
+        <p>Ab dann erhälst du keine Sozialhilfe mehr, zahlst aber auch keine Steuern.</p>
+      </div>
+      <div id="private-pool" class="private-hidden">
+        <h1>Staatliche Versicherung</h1>
+        <p>Die Änderung der Versicherung erfolgt mit der nächsten Runde.</p>
+        <p>Um zur staatlichen Versicherung zurückzukehren, musst du deine gesamte Rücklage an den Staat abgeben.</p>
+      </div>
+      <button id="private-send" type="submit" disabled>akzeptieren</button>
+      <span class="sx-overlay-close" id="private-close">×</span>
+    </div>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+
+    let isPrivate;
+    const render = () => {
+        if (isPrivate === null) {
+            helper.set('#private-send', 'disabled', true);
+            return;
+        }
+        helper.set('#private-send', 'disabled', false);
+        if (isPrivate) {
+            helper.style('#private-private', 'display', 'block');
+            helper.style('#private-pool', 'display', null);
+        } else {
+            helper.style('#private-pool', 'display', 'block');
+            helper.style('#private-private', 'display', null);
+        }
+    };
+    state.handle('private-select', (payload, next) => {
+        isPrivate = payload;
+        render();
+        return next(payload);
+    });
+    state.handle('sx-show-private', (payload, next) => {
+        render();
+        return next(payload);
+    })
+
+    action.listen('#private-send', 'click', () => {
+        state.dispatch('loading', true);
+        state.dispatch('private', isPrivate);
+    });
+    action.listen('#private-close', 'click', () => state.dispatch('close', 'private'));
+
+    state.listen('private', () => state.dispatch('loading', false));
+</script>
+
+<style>
+  .private-hidden {
+    display: none;
+  }
+</style>

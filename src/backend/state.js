@@ -13,6 +13,7 @@ class State {
     openTaxes = [];
     playerSelectLimit = 3;
     donation;
+    savings;
 
     constructor() {
         if (!fs.existsSync(file)) {
@@ -28,6 +29,8 @@ class State {
             player.cards = playerData.cards;
             player.help = playerData.help;
             player.rounds = playerData.rounds;
+            player.private = playerData.private;
+            player.savings = playerData.savings;
             this.players[name] = player;
         });
         this.pool.currentSet = data.pool.currentSet;
@@ -48,6 +51,10 @@ class State {
         return this.players[name];
     }
 
+    getPlayerCount() {
+        return Object.keys(this.players).length;
+    }
+
     getActivePlayers() {
         return this.filterPlayers('active', true);
     }
@@ -58,6 +65,10 @@ class State {
 
     getAiPlayers() {
         return this.filterPlayers('ai', true);
+    }
+
+    getPrivatePlayers() {
+        return this.filterPlayers('private', true);
     }
 
     filterPlayers(key, value) {
@@ -108,16 +119,31 @@ class State {
     }
 
     return() {
-        let amount = Math.floor(this.pool.cards.length / 2 / Object.keys(this.players).length);
+        let amount = this.getReturnAmount();
         for (let name in this.players) {
             this.players[name].give(this.pool.drawCards(amount));
         }
+    }
+
+    getReturnAmount() {
+        return Math.floor(this.pool.cards.length / 2 / this.getPlayerCount());
+    }
+
+    save(cards) {
+        return this.savings = this.removeFromProfit(cards);
     }
 
     commit() {
         for (let name in this.players) {
             let player = this.players[name];
             if (player.winner) {
+                if (this.savings) {
+                    if (player.private) {
+                        player.save(this.savings);
+                    } else {
+                        this.pool.returnCards(this.savings);
+                    }
+                }
                 player.commit(this.openProfit);
                 if (this.donation && !this.donation.accepted) {
                     player.give(this.donation.cards);
@@ -128,8 +154,13 @@ class State {
             if (this.donation && this.donation.accepted && this.donation.player === name) {
                 player.give(this.donation.cards);
             }
+            if (!player.private && player.savings.length) {
+                this.pool.returnCards(player.savings);
+                player.savings = [];
+            }
         }
         this.donation = null;
+        this.savings = null;
         this.pool.returnCards(this.openTaxes);
         this.openProfit = [];
         this.openTaxes = [];

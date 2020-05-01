@@ -25,13 +25,13 @@ button, [type=submit] {
 .sx-buttons {
     display: flex;
     margin: 0 -.5em .5em 0;
+    flex-wrap: wrap;
 }
 
 .sx-buttons > * {
     margin-right: .5em;
     flex: 0 1 auto;
     width: auto;
-    flex-wrap: wrap;
 }
 
 [disabled] {
@@ -148,6 +148,16 @@ label {
 .sx-card-list img {
     border-radius: 5px;
     box-shadow: 1px 1px 2px lightgray;
+}
+
+.sx-card-list label {
+    position: relative;
+}
+
+.sx-card-list input {
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 .sx-next-wrapper {

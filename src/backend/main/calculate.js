@@ -38,7 +38,9 @@ module.exports = class Calculate extends Game.Base {
         });
         refresh(['players']);
 
-        let actions = [], returnPossible = Math.floor(state.pool.cards.length / 2 / Object.keys(state.players).length);
+        let actions = [], playerCount = state.getPlayerCount();
+        let returnPossible = state.getReturnAmount();
+        let privatePossible = state.getPrivatePlayers().length < playerCount / 2;
         players.forEach((player) => {
             let playerActions = [];
             if (player.cards.length) {
@@ -46,9 +48,19 @@ module.exports = class Calculate extends Game.Base {
             }
             if (player === this.winner) {
                 playerActions.push('donate-profit');
+                if (player.private) {
+                    playerActions.push('save');
+                }
             }
             if (returnPossible) {
                 playerActions.push('return');
+            }
+            if (!player.private) {
+                if (privatePossible) {
+                    playerActions.push('private');
+                }
+            } else {
+                playerActions.push('pool');
             }
             actions.push({
                 player: player.name,
@@ -70,6 +82,7 @@ module.exports = class Calculate extends Game.Base {
         this.profitCards = [];
         this.taxes = [];
         this.taxCards = [];
+        this.winner = null;
     }
 
     draw(players, broadcast) {
@@ -121,8 +134,12 @@ module.exports = class Calculate extends Game.Base {
 
     calculateTaxes() {
         let calculations = {}, level = 0, taxCount = state.pool.getTaxCount(this.cards.length);
+        if (this.winner && this.winner.private) {
+            taxCount = 0;
+        }
         this.cards.forEach((card) => {
             if (!this.winner) {
+                card.tax = true;
                 this.taxes.push(card);
                 this.taxCards.push(card.card);
             } else if (calculations[card.card]) {

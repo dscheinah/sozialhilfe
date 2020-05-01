@@ -39,6 +39,10 @@
       <th title="Anzahl der gerade nicht verbundenen Spieler.">schlafend</th>
       <td id="main-statistics-players-inactive"></td>
     </tr>
+    <tr>
+      <th>privat versichert</th>
+      <td id="main-statistics-players-private"></td>
+    </tr>
   </table>
 </template>
 
@@ -59,6 +63,7 @@
             helper.set('#main-statistics-players', 'title', null);
         }
         helper.set('#main-statistics-players-inactive', 'innerText', statistics.players.inactive);
+        helper.set('#main-statistics-players-private', 'innerText', statistics.players.private);
         helper.set('#main-statistics-pool-level', 'innerText', statistics.pool.level);
         helper.set('#main-statistics-pool-cards', 'innerText', statistics.pool.cards);
         helper.set('#main-statistics-pool-increased', 'innerText', statistics.pool.increased ? 'erhöht' : 'normal');
@@ -77,6 +82,6 @@
 
 <style>
   .main-statistics-table th {
-    min-width: 90px;
+    min-width: 130px;
   }
 </style>
