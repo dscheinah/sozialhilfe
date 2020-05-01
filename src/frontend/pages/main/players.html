@@ -37,7 +37,7 @@
             rows.score.innerHTML = `<th title="${scoreHelp}">Punkte</th><td>${player.score}</td>`;
             if (player.private) {
                 rows.private.innerHTML = '<th colspan="2">privat versichert</th>'
-                rows.savings.innerHTML = `<th title="${cardsHelp}">Rücklage</th><td>${player.savings}</td>`
+                rows.savings.innerHTML = `<th title="${cardsHelp}">Rücklage</th><td>~${player.savings}</td>`
             }
             item.innerHTML = `<strong>${player.name}</strong>`;
             item.dataset.player = player.name;
