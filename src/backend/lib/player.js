@@ -3,6 +3,7 @@ module.exports = class Player {
     active = false;
     ai = false;
     cards = [];
+    prepared = false;
     waiting = 0;
     winner = false;
     help = false;
@@ -40,11 +41,16 @@ module.exports = class Player {
     }
 
     reset() {
+        this.prepared = false;
         this.winner = false;
         this.vote = false;
         if (this.private) {
             this.help = false;
         }
+    }
+
+    setPrepared() {
+        this.prepared = true;
     }
 
     wait(timeout) {

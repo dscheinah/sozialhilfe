@@ -67,6 +67,10 @@ class State {
         return this.filterPlayers('ai', true);
     }
 
+    getPreparedPlayers() {
+        return this.filterPlayers('prepared', true);
+    }
+
     getPrivatePlayers() {
         return this.filterPlayers('private', true);
     }

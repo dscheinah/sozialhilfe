@@ -36,6 +36,7 @@ module.exports = class Prepare extends Game.Base {
                 });
                 nextState = Game.STATE_SELECT;
             }
+            player.setPrepared();
         }
         if (state.pool.cards.length < state.pool.taxLimitPerPlayer * players.length) {
             state.pool.increaseTaxes();

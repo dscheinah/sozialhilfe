@@ -4,7 +4,7 @@ const state = require('../state.js');
 module.exports = class Waiting extends Game.Base {
     run(broadcast) {
         let nextState = Game.STATE_COMMIT, waiting = [];
-        state.getActivePlayers().forEach((player) => {
+        state.getPreparedPlayers().forEach((player) => {
             let timeout = player.waiting;
             if (timeout) {
                 player.wait(timeout - 1);

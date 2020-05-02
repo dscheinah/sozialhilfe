@@ -10,7 +10,7 @@ module.exports = class Commit extends Game.Base {
             }
         }
         let vote = false, returnTaxes = true;
-        state.getActivePlayers().forEach((player) => {
+        state.getPreparedPlayers().forEach((player) => {
            if (player.vote) {
                vote = true;
            } else if (player.ai) {

@@ -10,7 +10,7 @@ module.exports = class Calculate extends Game.Base {
     winner;
 
     run(broadcast, refresh) {
-        let players = state.getActivePlayers();
+        let players = state.getPreparedPlayers();
         players.forEach((player) => {
             if (!player.cards.length) {
                 broadcast({
