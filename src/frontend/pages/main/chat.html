@@ -14,6 +14,13 @@
 <script>
     import {action, helper, state} from '../../js/lib/sx.js';
 
+    const fill = (string) => {
+      if (string.length === 1) {
+          return '0' + string;
+      }
+      return string;
+    };
+
     state.listen('chat', (data) => {
         let chat = helper.element('#main-chat-list');
         if (!chat) {
@@ -22,6 +29,9 @@
         let li = helper.create('li');
         if (data.name) {
             li.dataset.name = data.name;
+        } else {
+            let now = new Date();
+            li.dataset.time = `${fill(now.getHours())}:${fill(now.getMinutes())}:${fill(now.getSeconds())}`;
         }
         li.innerText = data.message;
         chat.appendChild(li);
@@ -51,6 +61,11 @@
     display: block;
     word-wrap: break-word;
     padding-right: 1em;
+    position: relative;
+  }
+
+  #main-chat-list li:before {
+    margin-right: 1em;
   }
 
   #main-chat-list li:not([data-name]) {
@@ -59,8 +74,11 @@
 
   #main-chat-list li[data-name]:before {
     content: attr(data-name);
-    margin-right: 1em;
     font-weight: bold;
+  }
+
+  #main-chat-list li[data-time]:before {
+    content: attr(data-time);
   }
 
   #main-chat-form {

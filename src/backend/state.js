@@ -14,6 +14,7 @@ class State {
     playerSelectLimit = 3;
     donation;
     savings;
+    round = 1;
 
     constructor() {
         if (!fs.existsSync(file)) {
@@ -24,6 +25,7 @@ class State {
             return;
         }
         let data = JSON.parse(buffer.toString());
+        this.round = data.round;
         Object.keys(data.players).forEach((name) => {
             let player = new Player(name), playerData = data.players[name];
             player.cards = playerData.cards;
@@ -168,6 +170,7 @@ class State {
         this.pool.returnCards(this.openTaxes);
         this.openProfit = [];
         this.openTaxes = [];
+        this.round++;
         fs.writeFile(file, JSON.stringify(this), noop);
     }
 }

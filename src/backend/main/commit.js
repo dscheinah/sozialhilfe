@@ -11,25 +11,31 @@ module.exports = class Commit extends Game.Base {
         }
         let vote = false, returnTaxes = true;
         state.getPreparedPlayers().forEach((player) => {
-           if (player.vote) {
-               vote = true;
-           } else if (player.ai) {
-               if (Math.round(Math.random())) {
-                  returnTaxes = false;
-               }
-           } else {
-               returnTaxes = false;
-           }
+            if (player.vote) {
+                vote = true;
+            } else if (player.ai) {
+                if (Math.round(Math.random())) {
+                    returnTaxes = false;
+                }
+            } else {
+                returnTaxes = false;
+            }
         });
         if (vote) {
             if (returnTaxes) {
+                broadcast({
+                    type: 'chat',
+                    payload: {
+                        message: 'Die Steuerrückzahlung ist erfolgt.',
+                    },
+                });
                 state.return();
             } else {
                 broadcast({
                     type: 'chat',
                     payload: {
-                        message: 'Die Abstimmung zur Steuerrückzahlung war nicht erfolgreich.'
-                    }
+                        message: 'Die Abstimmung zur Steuerrückzahlung war nicht erfolgreich.',
+                    },
                 });
             }
         }

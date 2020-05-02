@@ -1,5 +1,12 @@
 <template>
   <h2>Statistik</h2>
+  <h3>Spiel</h3>
+  <table class="main-statistics-table">
+    <tr>
+      <th>Runde</th>
+      <td id="main-statistics-game-round"></td>
+    </tr>
+  </table>
   <h3>Staat</h3>
   <table class="main-statistics-table">
     <tr>
@@ -54,6 +61,7 @@
         if (!statistics) {
             return;
         }
+        helper.set('#main-statistics-game-round', 'innerText', statistics.game.round);
         helper.set('#main-statistics-players-active', 'innerText', statistics.players.active - statistics.players.ai);
         if (statistics.players.ai) {
             helper.set('#main-statistics-players-ai', 'innerText', '+' + statistics.players.ai);

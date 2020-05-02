@@ -4,6 +4,9 @@ const state = require('../state.js');
 module.exports = class Statistics extends require('../lib/handler.js') {
     broadcast() {
         return {
+            game: {
+                round: state.round,
+            },
             players: {
                 active: state.getActivePlayers().length,
                 ai: state.getAiPlayers().length,
