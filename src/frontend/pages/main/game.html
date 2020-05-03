@@ -5,8 +5,8 @@
     <ul id="main-game-profit" class="sx-flex-list sx-card-list main-game-card-list"></ul>
     <h3>Steuern</h3>
     <ul id="main-game-taxes" class="sx-flex-list sx-card-list main-game-card-list"></ul>
-    <div class="sx-buttons">
-      <button id="main-game-save" data-type="private" class="main-game-hidden" disabled>sparen</button>
+    <div class="sx-buttons main-game-buttons">
+      <button id="main-game-save" data-type="private" class="main-game-hidden" disabled>Rücklage auswählen</button>
       <button id="main-game-pool" data-type="private" class="main-game-hidden" disabled>staatlich versichern</button>
       <button id="main-game-private" data-type="pool" class="main-game-hidden" disabled>privat versichern</button>
       <button id="main-game-donate-profit" disabled>offen spenden</button>
@@ -203,7 +203,6 @@
   .main-game-wrapper {
     position: relative;
     height: 100%;
-    margin-bottom: 15px;
     box-sizing: border-box;
   }
 
@@ -223,7 +222,7 @@
   }
 
   .main-game-card-list {
-    margin-top: .5em;
+    margin: 0;
     min-height: 200px;
   }
 
@@ -254,6 +253,10 @@
 
   .main-game-hidden {
     display: none;
+  }
+
+  .main-game-buttons button {
+    width: 210px;
   }
 
   .main-game-winner.main-game-winner {

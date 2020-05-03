@@ -14,11 +14,11 @@
 <script>
     import {action, helper, state} from '../../js/lib/sx.js';
 
-    const fill = (string) => {
-      if (string.length === 1) {
-          return '0' + string;
-      }
-      return string;
+    const fill = (number) => {
+        if (number < 10) {
+            return '0' + number;
+        }
+        return number;
     };
 
     state.listen('chat', (data) => {
@@ -90,7 +90,7 @@
   }
 
   #main-chat-message {
-    flex: 1 0 auto;
+    flex: 1 1 auto;
     width: auto;
     box-sizing: border-box;
   }
