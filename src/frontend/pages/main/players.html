@@ -24,7 +24,7 @@
                 list.appendChild(item);
             }
             let table = helper.create('table'), rows = {};
-            ['cards', 'score', 'private', 'savings'].forEach((key) => {
+            ['cards', 'score', 'private', 'savings', 'insurance', 'owner', 'members'].forEach((key) => {
                 let row = helper.create('tr');
                 table.appendChild(row);
                 rows[key] = row;
@@ -38,6 +38,13 @@
             if (player.private) {
                 rows.private.innerHTML = '<th colspan="2">privat versichert</th>'
                 rows.savings.innerHTML = `<th title="${cardsHelp}">Rücklage</th><td>~${player.savings}</td>`
+            }
+            if (player.insurance) {
+                rows.insurance.innerHTML = `<th colspan="2">versichert bei<br/>${player.insurance}</th>`
+            }
+            if (player.owner) {
+                rows.owner.innerHTML = '<th colspan="2">Versicherung</th>';
+                rows.members.innerHTML = `<th>Klienten</th><td>${player.members}</td>`;
             }
             item.innerHTML = `<strong>${player.name}</strong>`;
             item.dataset.player = player.name;

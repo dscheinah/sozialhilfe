@@ -17,8 +17,13 @@ state.handle('login', async (payload) => {
 [
     'accept',
     'ai',
+    'change',
     'chat',
+    'create',
     'donate',
+    'insurances',
+    'join',
+    'leave',
     'next',
     'players',
     'private',
@@ -34,12 +39,15 @@ state.handle('login', async (payload) => {
     'actions',
     'calculate',
     'cards',
+    'change',
     'chat',
     'commit',
+    'create',
     'dead',
     'donate',
     'finish',
     'init',
+    'insurances',
     'players',
     'return',
     'save',
@@ -59,9 +67,12 @@ server.connect();
     'dead',
     'select',
     'accept',
+    'changed',
     'donate',
     'donation',
     'help',
+    'insurance',
+    'join',
     'message',
     'return',
     'private',
@@ -116,6 +127,14 @@ state.handle('save-select', (payload, next) => {
     stack.show('save');
     return next(payload);
 });
+state.handle('insurance-select', (payload, next) => {
+    stack.show('insurance');
+    return next(payload);
+});
+state.handle('join-select', (payload, next) => {
+    stack.show('join');
+    return next(payload);
+});
 
 state.listen('login', (success) => {
     if (success) {
@@ -147,7 +166,7 @@ state.listen('selecting', (payload) => {
 state.listen('select', () => stack.hide('select'));
 state.listen('calculate', () => stack.hide('select'));
 state.listen('commit', () => {
-    ['donate', 'accept', 'return'].forEach(id => stack.hide(id));
+    ['donate', 'accept', 'return', 'insurance'].forEach(id => stack.hide(id));
 });
 state.listen('donate', (payload) => {
     let name = state.get('player-name');
@@ -173,6 +192,20 @@ state.listen('return', (data) => {
 });
 state.listen('private', () => stack.hide('private'));
 state.listen('save', () => stack.hide('save'));
+state.listen('create', () => stack.hide('insurance'));
+state.listen('change', (data) => {
+    if (!data) {
+        return;
+    }
+    let name = state.get('player-name');
+    if (data.insurance === name) {
+        stack.hide('insurance');
+    }
+    if (data.player === name || (data.members && data.members.indexOf(name) >= 0)) {
+        stack.show('changed');
+    }
+});
+state.listen('join', () => stack.hide('join'));
 
 action.listen('[title]', 'click', (e) => {
     let target = e.target;

@@ -1,15 +1,29 @@
 <template>
   <div class="main-game-wrapper">
     <h2>Spiel</h2>
-    <h3>Gewinn</h3>
-    <ul id="main-game-profit" class="sx-flex-list sx-card-list main-game-card-list"></ul>
-    <h3>Steuern</h3>
-    <ul id="main-game-taxes" class="sx-flex-list sx-card-list main-game-card-list"></ul>
+    <div>
+      <h3>Gewinn</h3>
+      <ul id="main-game-profit" class="sx-flex-list sx-card-list main-game-card-list"></ul>
+    </div>
+    <div>
+      <h3>Steuern</h3>
+      <ul id="main-game-taxes" class="sx-flex-list sx-card-list main-game-card-list"></ul>
+    </div>
+    <div class="main-game-hidden">
+      <h3>Versicherungsbeiträge <small>(an <span id="main-game-insurance-owner"></span>)</small></h3>
+      <ul id="main-game-insurance" class="sx-flex-list sx-card-list main-game-card-list"></ul>
+    </div>
     <div class="sx-buttons main-game-buttons">
       <button id="main-game-save" data-type="private" class="main-game-hidden" disabled>Rücklage auswählen</button>
-      <button id="main-game-pool" data-type="private" class="main-game-hidden" disabled>staatlich versichern</button>
-      <button id="main-game-private" data-type="pool" class="main-game-hidden" disabled>privat versichern</button>
+      <button id="main-game-create" data-type="pool" class="main-game-hidden" disabled>Versicherung gründen</button>
       <button id="main-game-donate-profit" disabled>offen spenden</button>
+    </div>
+    <div class="sx-buttons main-game-buttons">
+      <button id="main-game-pool" data-type="private" class="main-game-hidden" disabled>staatlich versichern</button>
+      <button id="main-game-leave" data-type="insurance" class="main-game-hidden" disabled>staatlich versichern</button>
+      <button id="main-game-private" data-type="pool" class="main-game-hidden" disabled>privat versichern</button>
+      <button id="main-game-join" data-type="pool" class="main-game-hidden" disabled>Versicherung beitreten</button>
+      <button id="main-game-change" data-type="owner" class="main-game-hidden" disabled>Beiträge anpassen</button>
       <button id="main-game-donate-hidden" disabled>verdeckt spenden</button>
       <button id="main-game-return" disabled>Steuerrückzahlung</button>
     </div>
@@ -27,11 +41,15 @@
     import {cards as cardMapping, images} from '../../js/mapping.js';
 
     const actionMapping = {
+        'change': '#main-game-change',
+        'create': '#main-game-create',
         'donate-profit': '#main-game-donate-profit',
         'donate-hidden': '#main-game-donate-hidden',
-        'return': '#main-game-return',
+        'join': '#main-game-join',
+        'leave': '#main-game-leave',
         'private': '#main-game-private',
         'pool': '#main-game-pool',
+        'return': '#main-game-return',
         'save': '#main-game-save',
     };
 
@@ -41,11 +59,16 @@
         }
         state.dispatch('loading', true);
         [
-            '#main-game-donate-profit',
-            '#main-game-donate-visible',
             '#main-game-next',
+            '#main-game-change',
+            '#main-game-create',
+            '#main-game-donate-profit',
+            '#main-game-donate-hidden',
+            '#main-game-join',
+            '#main-game-leave',
             '#main-game-private',
             '#main-game-pool',
+            '#main-game-return',
             '#main-game-save',
         ].forEach(button => helper.set(button, 'disabled', true));
         [
@@ -69,38 +92,45 @@
         if (!helper.element('.main-game-wrapper')) {
             return;
         }
-        let cardLists = {'#main-game-profit': 'profit', '#main-game-taxes': 'taxes'}, cards = [];
+        helper.set('#main-game-insurance-owner', 'innerText', data.owner);
+        let cardLists = {
+            '#main-game-profit': 'profit',
+            '#main-game-taxes': 'taxes',
+            '#main-game-insurance': 'insurance',
+        }, cards = [];
         for (let id in cardLists) {
-            let list = helper.element(id);
-            if (list) {
-                if (data.mark) {
-                    let items = list.children;
-                    data[cardLists[id]].forEach((card, index) => {
-                        if (card.mark) {
-                            items[index].dataset.mark = card.mark;
-                        }
-                    });
-                } else {
-                    list.innerHTML = '';
-                    data[cardLists[id]].forEach((card) => {
-                        let li = helper.create('li'), img = helper.create('img'), name = helper.create('small');
-                        img.src = images[card.card];
-                        img.width = 100;
-                        img.alt = cardMapping[card.card];
-                        li.appendChild(img);
-                        name.innerText = card.player;
-                        name.classList.add('sx-ellipsis');
-                        name.classList.add('sx-text-center');
-                        if (card.player === data.player) {
-                            name.classList.add('main-game-winner');
-                            name.title = 'Dieser Spieler hat die Runde gewonnen.';
-                        }
-                        li.appendChild(name);
-                        li.dataset.card = card.player;
-                        list.appendChild(li);
-                        cards.push(li);
-                    });
-                }
+            let list = helper.element(id), currentCards = data[cardLists[id]];
+            if (!list) {
+                continue;
+            }
+            if (data.mark) {
+                let items = list.children;
+                currentCards.forEach((card, index) => {
+                    if (card.mark) {
+                        items[index].dataset.mark = card.mark;
+                    }
+                });
+            } else {
+                list.innerHTML = '';
+                list.parentNode.style.display = currentCards.length ? 'block' : 'none';
+                currentCards.forEach((card) => {
+                    let li = helper.create('li'), img = helper.create('img'), name = helper.create('small');
+                    img.src = images[card.card];
+                    img.width = 100;
+                    img.alt = cardMapping[card.card];
+                    li.appendChild(img);
+                    name.innerText = card.player;
+                    name.classList.add('sx-ellipsis');
+                    name.classList.add('sx-text-center');
+                    if (card.player === data.player) {
+                        name.classList.add('main-game-winner');
+                        name.title = 'Dieser Spieler hat die Runde gewonnen.';
+                    }
+                    li.appendChild(name);
+                    li.dataset.card = card.player;
+                    list.appendChild(li);
+                    cards.push(li);
+                });
             }
         }
         if (!data.mark) {
@@ -115,12 +145,15 @@
         let name = state.get('player-name');
         players.forEach((player) => {
             if (player.name === name) {
+                helper.elements('[data-type]').forEach(element => element.style.display = null);
                 if (player.private) {
                     helper.elements('[data-type=private]').forEach(element => element.style.display = 'block');
-                    helper.elements('[data-type=pool]').forEach(element => element.style.display = null);
+                } else if (player.owner) {
+                    helper.elements('[data-type=owner]').forEach(element => element.style.display = 'block');
+                } else if (player.insurance) {
+                    helper.elements('[data-type=insurance]').forEach(element => element.style.display = 'block');
                 } else {
                     helper.elements('[data-type=pool]').forEach(element => element.style.display = 'block');
-                    helper.elements('[data-type=private]').forEach(element => element.style.display = null);
                 }
             }
         });
@@ -150,6 +183,9 @@
         if (payload && payload.player === state.get('player-name')) {
             helper.set('#main-game-donate-profit', 'disabled', true);
             helper.set('#main-game-donate-hidden', 'disabled', true);
+            if (!payload.hidden) {
+                helper.set('#main-game-create', 'disabled', true);
+            }
         }
     });
     state.listen('return', () => {
@@ -162,9 +198,17 @@
             state.dispatch('message', 'Ein anderer Spieler war leider schneller, sodass du dich nicht privat versichern konntest.');
         }
     });
-    state.listen('save', () => {
-        helper.set('#main-game-save', 'disabled', true);
-    })
+    state.listen('save', () => helper.set('#main-game-save', 'disabled', true));
+    state.listen('create', () => helper.set('#main-game-create', 'disabled', true));
+    state.listen('join', () => {
+        helper.set('#main-game-join', 'disabled', true)
+        helper.set('#main-game-leave', 'disabled', false);
+    });
+    state.listen('leave', () => {
+        state.dispatch('loading', false);
+        helper.set('#main-game-leave', 'disabled', true);
+        helper.set('#main-game-join', 'disabled', false)
+    });
 
     state.handle('sx-show-main', (payload, next) => {
         let calculations = state.get('calculate');
@@ -192,6 +236,13 @@
     action.listen('#main-game-private', 'click', () => state.dispatch('private-select', true));
     action.listen('#main-game-pool', 'click', () => state.dispatch('private-select', false));
     action.listen('#main-game-save', 'click', () => state.dispatch('save-select'));
+    action.listen('#main-game-create', 'click', () => state.dispatch('insurance-select', true));
+    action.listen('#main-game-change', 'click', () => state.dispatch('insurance-select', false));
+    action.listen('#main-game-join', 'click', () => state.dispatch('join-select'));
+    action.listen('#main-game-leave', 'click', () => {
+        state.dispatch('loading', true);
+        state.dispatch('leave');
+    });
 
     state.listen('next', () => {
         helper.set('#main-game-timer', 'innerHTML', null);
@@ -222,7 +273,7 @@
   }
 
   .main-game-card-list {
-    margin: 0;
+    margin: 5px 0 0;
     min-height: 200px;
   }
 

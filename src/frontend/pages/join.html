@@ -1,0 +1,88 @@
+<template>
+  <div class="sx-overlay">
+    <div class="sx-overlay-content">
+      <h2>Versicherungsunternehmen</h2>
+      <p>Die Änderung der Versicherung erfolgt mit der nächsten Runde.</p>
+      <div class="join-mobile">
+        <table class="sx-border-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th title="Die Auszahlung erfolgt analog der Sozialhilfe im Versicherungsfall.">Hilfe</th>
+              <th title="Die Anzahl der Karten wird mathematisch gerundet.">Beitragshöhe</th>
+              <th title="Die Beiträge werden in dieser Reihenfolge vom Gewinn abgezogen.">Reihenfolge</th>
+              <th title="Diese Karten werden unabhängig von der Beitragshöhe als Beitrag behalten.">Karten</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="join-insurances"></tbody>
+        </table>
+      </div>
+      <span class="sx-overlay-close" id="join-close">×</span>
+    </div>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+    import {cards} from '../js/mapping.js';
+
+    const render = (data) => {
+        let table = helper.element('#join-insurances');
+        if (!table || !data) {
+            return;
+        }
+        let rows = [];
+        data.forEach((insurance) => {
+            let button = helper.create('button');
+            button.value = insurance.name;
+            button.innerText = 'beitreten';
+            rows.push([
+                insurance.name,
+                insurance.help + ' Karten',
+                (insurance.taxes.amount * 100) + '%',
+                insurance.taxes.priority.map(card => cards[card]).join(', '),
+                insurance.taxes.cards.map(card => cards[card]).join(', '),
+                button,
+            ]);
+        });
+        table.innerHTML = '';
+        rows.forEach((row) => {
+            let tr = helper.create('tr');
+            row.forEach((column, index) => {
+                let td = helper.create(index ? 'td' : 'th');
+                if (column instanceof HTMLElement) {
+                    td.appendChild(column);
+                } else {
+                    td.innerText = column;
+                }
+                tr.appendChild(td);
+            });
+            table.appendChild(tr);
+        });
+    };
+
+    state.listen('insurances', data => render(data));
+    state.handle('sx-show-join', (payload, next) => {
+        render(state.get('insurances'));
+        return next(payload);
+    });
+
+    action.listen('#join-insurances button', 'click', (e) => {
+        state.dispatch('loading', true);
+        state.dispatch('join', e.target.value);
+    });
+    action.listen('#join-close', 'click', () => state.dispatch('close', 'join'));
+
+    state.listen('join', () => state.dispatch('loading', false));
+</script>
+
+<style>
+  .join-mobile {
+    overflow: auto;
+  }
+
+  #join-insurances td {
+    vertical-align: middle;
+  }
+</style>

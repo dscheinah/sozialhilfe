@@ -1,0 +1,185 @@
+<template>
+  <div class="sx-overlay">
+    <form id="insurance-form" class="sx-overlay-content">
+      <h2>Versicherungsunternehmen</h2>
+      <div id="insurance-help-wrapper">
+        <input type="number" name="help" min="1" id="insurance-help"/>
+        <label for="insurance-help">Anzahl der ausgezahlten Karten im Versicherungsfall</label>
+      </div>
+      <div class="insurance-peek">
+        <small id="insurance-amount-peek"></small>
+        <input type="range" name="amount" min="0" max="1" step="0.1" id="insurance-amount"/>
+        <label for="insurance-amount">Beiträge in Prozent (die Anzahl der Karten wird mathematisch gerundet)</label>
+      </div>
+      <p>
+        Bestimme per Drag & Drop, in welcher Reihenfolge die Beiträge aus dem Gewinn gewählt werden sollen.<br/>
+        Die erste Karte wird auch als erstes ausgewählt.
+      </p>
+      <ul id="insurance-priority" class="sx-flex-list sx-card-list sx-drag-list"></ul>
+      <p>
+        Wähle die Karten, die unabhängig von der Beitragshöhe auf jeden Fall gewählt werden sollen.
+      </p>
+      <div id="insurance-cards" class="sx-input"></div>
+      <button id="insurance-create" class="insurance-hidden">gründen</button>
+      <button id="insurance-change" class="insurance-hidden">anpassen</button>
+      <span class="sx-overlay-close" id="insurance-close">×</span>
+    </form>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+    import {cards, images} from '../js/mapping.js';
+
+    let insurance = {taxes: {}}, create = null;
+    const render = () => {
+        let priorityList = helper.element('#insurance-priority'), cardList = helper.element('#insurance-cards');
+        let amount = helper.element('#insurance-amount');
+        if (!priorityList || !cardList || !amount || create === null) {
+            return;
+        }
+        if (create) {
+            helper.style('#insurance-help-wrapper', 'display', null);
+            helper.style('#insurance-create', 'display', 'block');
+            helper.style('#insurance-change', 'display', null);
+        } else {
+            helper.style('#insurance-help-wrapper', 'display', 'none');
+            helper.style('#insurance-change', 'display', 'block');
+            helper.style('#insurance-create', 'display', null);
+        }
+        priorityList.innerHTML = '';
+        (insurance.taxes.priority || Object.keys(images)).forEach((card) => {
+            let priority = helper.create('li'), img = helper.create('img'), hidden = helper.create('input');
+            img.src = images[card];
+            img.width = 50;
+            img.alt = cards[card];
+            hidden.type = 'hidden';
+            hidden.name = 'priority';
+            hidden.value = card;
+            priority.draggable = true;
+            priority.dataset.card = card;
+            priority.appendChild(img);
+            priority.appendChild(hidden);
+            priorityList.appendChild(priority);
+        });
+        cardList.innerHTML = '';
+        Object.keys(images).forEach((card) => {
+            card = parseInt(card);
+            let input = helper.create('input'), label = helper.create('label'), id = 'insurance-card-' + card;
+            input.type = 'checkbox';
+            input.name = 'cards';
+            input.value = card;
+            input.id = id;
+            if (insurance.taxes.cards && insurance.taxes.cards.indexOf(card) >= 0) {
+                input.checked = true;
+            }
+            label.setAttribute('for', id);
+            label.innerHTML = cards[card];
+            cardList.appendChild(input);
+            cardList.appendChild(label);
+        });
+        helper.set('#insurance-help', 'value', insurance.help || 2);
+        helper.set('#insurance-amount', 'value', insurance.taxes.amount || 0.4);
+        helper.set('#insurance-amount-peek', 'innerText', amount.value * 100);
+    };
+
+    const getInsurance = (insurances) => {
+        if (!insurances) {
+            return;
+        }
+        let name = state.get('player-name');
+        insurances.forEach((current) => {
+            if (current.name === name) {
+                insurance = current;
+            }
+        });
+    };
+    getInsurance(state.get('insurances'));
+
+    state.handle('insurance-select', (payload, next) => {
+        create = payload;
+        render();
+        return next(payload);
+    });
+    state.listen('insurances', (data) => {
+        getInsurance(data);
+        render();
+    });
+
+    state.handle('sx-show-insurance', (payload, next) => {
+        render();
+        return next(payload);
+    });
+
+    const send = (e, create) => {
+        e.preventDefault();
+        let data = new FormData(helper.element('#insurance-form'));
+        state.dispatch('loading', true);
+        state.dispatch(create ? 'create' : 'change', {
+            help: data.get('help'),
+            amount: data.get('amount'),
+            priority: data.getAll('priority'),
+            cards: data.getAll('cards'),
+        });
+    };
+    action.listen('#insurance-create', 'click', (e) => send(e, true));
+    action.listen('#insurance-change', 'click', (e) => send(e, false));
+    action.listen('#insurance-close', 'click', () => state.dispatch('close', 'insurance'));
+
+    state.listen('create', () => state.dispatch('loading', false));
+    state.listen('change', (data) => {
+        if (data && data.insurance === state.get('player-name')) {
+            state.dispatch('loading', false);
+        }
+    });
+
+    action.listen('#insurance-amount', 'input', (e) => {
+        helper.set('#insurance-amount-peek', 'innerText', e.target.value * 100);
+    });
+
+    const resetDrag = (e) => {
+        e.preventDefault();
+        helper.elements('.sx-drag-over').forEach(element => element.classList.remove('sx-drag-over'));
+    };
+    let source, target;
+    action.listen('#insurance-priority li', 'dragstart', (e) => {
+        source = e.target;
+        while (!source.dataset.card) {
+            source = source.parentNode;
+        }
+    });
+    action.listen('#insurance-priority li', 'dragover', (e) => {
+        resetDrag(e);
+        e.dataTransfer.dropEffect = 'move';
+        target = e.target;
+        while (!target.dataset.card) {
+            target = target.parentNode;
+        }
+        target.classList.add('sx-drag-over');
+    });
+    action.listen('#insurance-priority li', 'drop', (e) => {
+        resetDrag(e);
+        target.parentNode.insertBefore(source.cloneNode(true), target);
+        source.parentNode.insertBefore(target, source);
+        source.parentNode.removeChild(source);
+    });
+    action.listen('#insurance-priority li', 'dragleave', resetDrag);
+    action.listen('#insurance-priority li', 'dragend', resetDrag);
+</script>
+
+<style>
+  .insurance-hidden {
+    display: none;
+  }
+
+  .insurance-peek {
+    position: relative;
+    padding-right: 2em;
+  }
+
+  .insurance-peek small {
+    position: absolute;
+    right: 0;
+    top: .5em;
+  }
+</style>

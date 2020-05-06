@@ -20,6 +20,10 @@ module.exports = class Statistics extends require('../lib/handler.js') {
                 average: state.pool.cards.length ? Math.round(average(state.pool.cards)) : 0,
                 increased: state.pool.taxIncreased,
             },
+            insurances: {
+                count: Object.keys(state.insurances).length,
+                members: state.getPlayerCountInsurance(),
+            },
         };
     }
 };

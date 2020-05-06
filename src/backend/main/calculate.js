@@ -7,6 +7,7 @@ module.exports = class Calculate extends Game.Base {
     profitCards = [];
     taxes = [];
     taxCards = [];
+    insurance;
     winner;
 
     run(broadcast, refresh) {
@@ -27,6 +28,10 @@ module.exports = class Calculate extends Game.Base {
         this.reset();
         this.draw(players, broadcast);
         this.calculateTaxes();
+        this.calculateInsurance();
+        this.calculateProfit();
+
+        state.setOpenCards(this.profitCards, this.taxCards, this.insurance);
 
         broadcast({
             type: 'calculate',
@@ -34,15 +39,17 @@ module.exports = class Calculate extends Game.Base {
                 player: this.winner ? this.winner.name : '',
                 profit: this.profit,
                 taxes: this.taxes,
+                owner: this.insurance ? this.insurance.name : null,
+                insurance: this.insurance ? this.insurance.taxes : [],
             },
         });
         refresh(['players']);
 
-        let actions = [], playerCount = state.getPlayerCount();
+        let actions = [], playerCount = state.getPlayerCount(), insuranceCount = Object.keys(state.insurances).length;
         let returnPossible = state.getReturnAmount();
         let privatePossible = state.getPrivatePlayers().length < playerCount / 2;
         players.forEach((player) => {
-            let playerActions = [];
+            let playerActions = [], insurance = state.insurances[player.name];
             if (player.cards.length) {
                 playerActions.push('donate-hidden');
             }
@@ -50,6 +57,8 @@ module.exports = class Calculate extends Game.Base {
                 playerActions.push('donate-profit');
                 if (player.private) {
                     playerActions.push('save');
+                } else if (!insurance && state.isInsurancePossible()) {
+                    playerActions.push('create');
                 }
             }
             if (returnPossible) {
@@ -58,6 +67,13 @@ module.exports = class Calculate extends Game.Base {
             if (!player.private) {
                 if (privatePossible) {
                     playerActions.push('private');
+                }
+                if (insurance) {
+                    playerActions.push('change');
+                } else if (state.getInsurance(player.name)) {
+                    playerActions.push('leave');
+                } else if (insuranceCount) {
+                    playerActions.push('join');
                 }
             } else {
                 playerActions.push('pool');
@@ -72,7 +88,6 @@ module.exports = class Calculate extends Game.Base {
             payload: actions,
         });
 
-        state.setOpenCards(this.profitCards, this.taxCards);
         return Game.STATE_WAITING;
     }
 
@@ -82,6 +97,7 @@ module.exports = class Calculate extends Game.Base {
         this.profitCards = [];
         this.taxes = [];
         this.taxCards = [];
+        this.insurance = null;
         this.winner = null;
     }
 
@@ -119,8 +135,8 @@ module.exports = class Calculate extends Game.Base {
                 type: 'chat',
                 payload: {
                     message: 'Stechen zwischen ' + tossingPlayersText,
-                }
-            })
+                },
+            });
             this.draw(tossingPlayers, broadcast);
         } else {
             current.forEach((card) => {
@@ -133,16 +149,12 @@ module.exports = class Calculate extends Game.Base {
     }
 
     calculateTaxes() {
-        let calculations = {}, level = 0, taxCount = state.pool.getTaxCount(this.cards.length);
-        if (this.winner && this.winner.private) {
-            taxCount = 0;
+        if (!this.winner || this.winner.private || state.getInsurance(this.winner.name)) {
+            return;
         }
+        let calculations = {}, level = 0, taxCount = state.pool.getTaxCount(this.cards.length);
         this.cards.forEach((card) => {
-            if (!this.winner) {
-                card.tax = true;
-                this.taxes.push(card);
-                this.taxCards.push(card.card);
-            } else if (calculations[card.card]) {
+            if (calculations[card.card]) {
                 let current = ++calculations[card.card];
                 if (current > level) {
                     level = current;
@@ -182,13 +194,53 @@ module.exports = class Calculate extends Game.Base {
 
             this.setTax(topCard, taxCount);
         }
+    }
+
+    calculateInsurance() {
+        if (!this.winner || this.winner.private) {
+            return;
+        }
+        let insurance = state.getInsurance(this.winner.name);
+        if (!insurance) {
+            return;
+        }
+        let cards = [];
+        this.insurance = {
+            name: insurance.name,
+            taxes: [],
+            cards: [],
+        };
+        this.cards.forEach(card => cards.push(card.card));
+        insurance.calculateTaxes(cards).forEach((tax) => {
+            for (let i = this.cards.length; i--;) {
+                let card = this.cards[i];
+                if (card.card === tax && !card.tax) {
+                    card.tax = true;
+                    this.insurance.taxes.push({
+                        card: card.card,
+                        player: card.player.name,
+                    });
+                    this.insurance.cards.push(card.card);
+                    return;
+                }
+            }
+        });
+    }
+
+    calculateProfit() {
         this.cards.forEach((card) => {
             if (!card.tax) {
-                this.profit.push({
-                    card: card.card,
-                    player: card.player.name,
-                });
-                this.profitCards.push(card.card);
+                if (!this.winner) {
+                    card.tax = true;
+                    this.taxes.push(card);
+                    this.taxCards.push(card.card);
+                } else {
+                    this.profit.push({
+                        card: card.card,
+                        player: card.player.name,
+                    });
+                    this.profitCards.push(card.card);
+                }
             }
         });
     }

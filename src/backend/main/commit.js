@@ -49,7 +49,7 @@ module.exports = class Commit extends Game.Base {
             });
         }
         state.commit();
-        refresh(['statistics', 'players']);
+        refresh(['statistics', 'players', 'insurances']);
         return Game.STATE_PREPARE;
     }
 };

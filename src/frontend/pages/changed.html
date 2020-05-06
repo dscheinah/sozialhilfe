@@ -1,0 +1,50 @@
+<template>
+  <div class="sx-overlay">
+    <div class="sx-overlay-content">
+      <h2>Aktuelle Versicherungsbeiträge</h2>
+      <table>
+        <tr>
+          <th>Beitragshöhe</th>
+          <td id="changed-amount"></td>
+        </tr>
+        <tr>
+          <th>Reihenfolge</th>
+          <td id="changed-priority"></td>
+        </tr>
+        <tr>
+          <th>Karten</th>
+          <td id="changed-cards"></td>
+        </tr>
+      </table>
+      <span class="sx-overlay-close" id="changed-close">×</span>
+    </div>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+    import {cards} from '../js/mapping.js';
+
+    let taxes;
+    const render = () => {
+        if (!taxes) {
+            return;
+        }
+        helper.set('#changed-amount', 'innerText', (taxes.amount * 100) + '%');
+        helper.set('#changed-priority', 'innerText', taxes.priority.map(card => cards[card]).join(', '));
+        helper.set('#changed-cards', 'innerText', taxes.cards.map(card => cards[card]).join(', '));
+    };
+    state.listen('change', (data) => {
+        if (!data) {
+            return;
+        }
+        taxes = data.taxes;
+        render();
+    });
+    state.handle('sx-show-changed', (payload, next) => {
+        render();
+        return next(payload);
+    });
+
+    action.listen('#changed-close', 'click', () => state.dispatch('close', 'changed'));
+</script>

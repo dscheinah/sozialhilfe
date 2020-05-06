@@ -1,8 +1,13 @@
 const types = {
     accept: new (require('./event/accept.js'))(),
     ai: new (require('./event/ai.js'))(),
+    change: new (require('./event/change.js'))(),
     chat: new (require('./event/chat.js'))(),
+    create: new (require('./event/create.js'))(),
     donate: new (require('./event/donate.js'))(),
+    insurances: new (require('./event/insurances.js'))(),
+    join: new (require('./event/join.js'))(),
+    leave: new (require('./event/leave.js'))(),
     login: new (require('./event/login.js'))(),
     next: new (require('./event/next.js'))(),
     players: new (require('./event/players.js'))(),

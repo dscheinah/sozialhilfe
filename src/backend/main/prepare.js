@@ -16,13 +16,24 @@ module.exports = class Prepare extends Game.Base {
                 if (player.private) {
                     player.useSavings();
                 } else {
-                    let helpCards = state.pool.drawCards(state.pool.helpAmount);
-                    if (helpCards.length < state.pool.helpAmount) {
-                        broadcast({type: 'finish', payload: true});
-                        return Game.STATE_INIT;
+                    let insurance = state.getInsurance(player.name);
+                    if (insurance && state.players[insurance.name].cards.length > insurance.help) {
+                        player.give(state.players[insurance.name].drawCards(insurance.help));
+                    } else {
+                        let helpCards = state.pool.drawCards(state.pool.helpAmount);
+                        if (helpCards.length < state.pool.helpAmount) {
+                            broadcast({type: 'finish', payload: true});
+                            return Game.STATE_INIT;
+                        }
+                        helpActive = true;
+                        player.give(helpCards);
+                        if (state.insurances[player.name]) {
+                            state.removeInsurance(player.name);
+                        }
+                        if (insurance && state.players[insurance.name].cards.length <= insurance.help) {
+                            state.removeInsurance(insurance.name);
+                        }
                     }
-                    helpActive = true;
-                    player.give(helpCards);
                 }
             }
             if (player.cards.length > 1 && player.cards.length <= state.playerSelectLimit && !player.ai) {
@@ -43,7 +54,7 @@ module.exports = class Prepare extends Game.Base {
         } else if (!helpActive) {
             state.pool.restoreTaxes();
         }
-        refresh(['statistics', 'players']);
+        refresh(['statistics', 'players', 'insurances']);
         return nextState;
     }
 };

@@ -1,4 +1,5 @@
 const Player = require('./lib/player.js');
+const Insurance = require('./state/insurance.js');
 const fs = require('fs');
 
 const noop = () => null;
@@ -11,10 +12,13 @@ class State {
     pool = new (require('./state/pool.js'))();
     openProfit = [];
     openTaxes = [];
+    openInsurance;
     playerSelectLimit = 3;
     donation;
     savings;
     round = 1;
+    insurances = {};
+    insuranceToCreate;
 
     constructor() {
         if (!fs.existsSync(file)) {
@@ -34,6 +38,13 @@ class State {
             player.private = playerData.private;
             player.savings = playerData.savings;
             this.players[name] = player;
+        });
+        Object.keys(data.insurances).forEach((name) => {
+            let insurance = new Insurance(name), insuranceData = data.insurances[name];
+            insurance.help = insuranceData.help;
+            insurance.taxes = insuranceData.taxes;
+            insurance.members = insuranceData.members;
+            this.insurances[name] = insurance;
         });
         this.pool.currentSet = data.pool.currentSet;
         this.pool.cards = data.pool.cards;
@@ -77,6 +88,22 @@ class State {
         return this.filterPlayers('private', true);
     }
 
+    getPlayerCountInsurance() {
+        let members = 0, insurances = Object.keys(this.insurances);
+        insurances.forEach((name) => {
+            members += this.insurances[name].members.length;
+        });
+        return members;
+    }
+
+    isInsurancePossible() {
+        let playerCount = this.getPlayerCount();
+        playerCount -= Object.keys(this.insurances).length;
+        playerCount -= this.getPrivatePlayers().length;
+        playerCount -= this.getPlayerCountInsurance();
+        return playerCount > 1 && this.openProfit.filter(card => [6, 7, 8].indexOf(card) >= 0).length;
+    }
+
     filterPlayers(key, value) {
         let players = [];
         for (let name in this.players) {
@@ -88,9 +115,10 @@ class State {
         return players;
     }
 
-    setOpenCards(profit, taxes) {
+    setOpenCards(profit, taxes, insurance) {
         this.openProfit = profit;
         this.openTaxes = taxes;
+        this.openInsurance = insurance;
     }
 
     donate(cards, player) {
@@ -102,7 +130,7 @@ class State {
             player: player,
             cards: donation,
             accepted: false,
-        }
+        };
         return donation;
     }
 
@@ -139,6 +167,48 @@ class State {
         return this.savings = this.removeFromProfit(cards);
     }
 
+    createInsurance(name, configuration) {
+        let player = this.players[name], help = parseInt(configuration.help);
+        if (!player || player.private || help <= 0 || !this.isInsurancePossible()) {
+            return false;
+        }
+        this.insuranceToCreate = new Insurance(name);
+        this.insuranceToCreate.setHelp(help);
+        this.insuranceToCreate.setTaxes(configuration);
+        this.openTaxes.push(...this.openProfit);
+        this.openProfit = [];
+        return true;
+    }
+
+    removeInsurance(name) {
+        delete this.insurances[name];
+    }
+
+    setInsurance(player, insurance) {
+        if (!this.insurances[insurance]) {
+            return;
+        }
+        this.removeFromInsurance(player);
+        this.insurances[insurance].addPlayer(player);
+    }
+
+    removeFromInsurance(player) {
+        Object.keys(this.insurances).forEach((insurance) => {
+            this.insurances[insurance].removePlayer(player);
+        });
+    }
+
+    getInsurance(player) {
+        let names = Object.keys(this.insurances);
+        for (let i = names.length; i--;) {
+            let insurance = this.insurances[names[i]];
+            if (insurance.members.indexOf(player) >= 0) {
+                return insurance;
+            }
+        }
+        return null;
+    }
+
     commit() {
         for (let name in this.players) {
             let player = this.players[name];
@@ -154,6 +224,8 @@ class State {
                 if (this.donation && !this.donation.accepted) {
                     player.give(this.donation.cards);
                 }
+            } else if (this.openInsurance && this.openInsurance.name === player.name) {
+                player.commit(this.openInsurance.cards);
             } else {
                 player.commit();
             }
@@ -170,7 +242,12 @@ class State {
         this.pool.returnCards(this.openTaxes);
         this.openProfit = [];
         this.openTaxes = [];
+        this.openInsurance = null;
         this.round++;
+        if (this.insuranceToCreate) {
+            this.insurances[this.insuranceToCreate.name] = this.insuranceToCreate;
+            this.insuranceToCreate = null;
+        }
         fs.writeFile(file, JSON.stringify(this), noop);
     }
 }
