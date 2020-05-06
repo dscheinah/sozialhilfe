@@ -116,6 +116,7 @@ class State {
     }
 
     setOpenCards(profit, taxes, insurance) {
+        this.round++;
         this.openProfit = profit;
         this.openTaxes = taxes;
         this.openInsurance = insurance;
@@ -243,7 +244,6 @@ class State {
         this.openProfit = [];
         this.openTaxes = [];
         this.openInsurance = null;
-        this.round++;
         if (this.insuranceToCreate) {
             this.insurances[this.insuranceToCreate.name] = this.insuranceToCreate;
             this.insuranceToCreate = null;
