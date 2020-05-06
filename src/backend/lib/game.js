@@ -5,7 +5,7 @@ module.exports.STATE_CALCULATE = 3;
 module.exports.STATE_WAITING = 4;
 module.exports.STATE_COMMIT = 5;
 
-module.exports.Base = class Game {
+module.exports.Base = class Base {
     run() {
     }
 };
