@@ -29,18 +29,18 @@ module.exports = class Main {
     }
 
     loop() {
-        if (this.gameState <= Game.STATE_PREPARE) {
-            let playerCount = state.getActivePlayers().length;
-            if (!playerCount) {
-                this.running = false;
-                return;
-            } else if (playerCount < state.requiredPlayers) {
-                this.broadcast({type: 'reset', payload: true});
-                this.gameState = Game.STATE_INIT;
-            }
-        }
         let lastState;
         do {
+            if (this.gameState <= Game.STATE_PREPARE) {
+                let playerCount = state.getActivePlayers().length;
+                if (!playerCount) {
+                    this.running = false;
+                    return;
+                } else if (playerCount < state.requiredPlayers) {
+                    this.broadcast({type: 'reset', payload: true});
+                    this.gameState = Game.STATE_INIT;
+                }
+            }
             lastState = this.gameState;
             this.gameState = handlers[this.gameState].run(this.broadcast, this.refresh);
         } while (lastState !== this.gameState);
