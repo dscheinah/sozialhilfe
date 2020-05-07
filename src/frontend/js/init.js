@@ -49,6 +49,7 @@ state.handle('login', async (payload) => {
     'init',
     'insurances',
     'players',
+    'reset',
     'return',
     'save',
     'selecting',

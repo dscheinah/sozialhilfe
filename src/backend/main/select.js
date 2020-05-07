@@ -15,7 +15,7 @@ module.exports = class Select extends Game.Base {
                     player: player.name,
                     timeout: timeout,
                 });
-                if (!player.ai) {
+                if (!player.ai && player.active) {
                     nextState = Game.STATE_SELECT;
                 }
             }

@@ -16,9 +16,9 @@
 <script>
     import {action, helper, state} from '../js/lib/sx.js';
 
-    state.listen('version', version => helper.set('#login-version', 'innerText', version || ''));
+    state.listen('version', version => helper.set('#login-version', 'innerText', version));
     state.handle('sx-show-login', (data, next) => {
-        helper.set('#login-version', 'innerText', state.get('version'));
+        helper.set('#login-version', 'innerText', state.get('version') || '');
         let name = state.get('player-name');
         if (name) {
             helper.set('#login-name', 'value', name);

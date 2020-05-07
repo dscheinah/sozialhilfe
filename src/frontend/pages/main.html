@@ -43,6 +43,7 @@
         }
     };
     state.listen('statistics', statistics => applyStatistics(statistics));
+    state.listen('reset', () => state.dispatch('loading', false));
     state.handle('sx-show-main', (data, next) => {
         core.forEach(key => state.dispatch(key));
 

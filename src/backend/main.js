@@ -12,7 +12,7 @@ handlers[Game.STATE_COMMIT] = new (require('./main/commit.js'))();
 module.exports = class Main {
     broadcast;
     refresh;
-    interval;
+    running = false;
     gameState = Game.STATE_INIT;
 
     constructor(broadcast, refresh) {
@@ -21,35 +21,29 @@ module.exports = class Main {
     }
 
     start() {
-        if (!this.interval) {
+        if (!this.running) {
+            this.running = true;
             this.gameState = Game.STATE_INIT;
-            this.interval = setInterval(() => this.loop(), 1000);
-        }
-    }
-
-    stop() {
-        if (this.interval) {
-            state.commit();
-            clearInterval(this.interval);
-            this.interval = null;
+            this.loop();
         }
     }
 
     loop() {
-        let playerCount = state.getActivePlayers().length;
-        if (!playerCount) {
-            return this.stop();
-        } else if (playerCount < state.requiredPlayers) {
-            let aiPlayers = state.getAiPlayers();
-            if (playerCount === aiPlayers.length) {
-                aiPlayers.forEach(player => player.deactivate());
-                return this.stop();
+        if (this.gameState <= Game.STATE_PREPARE) {
+            let playerCount = state.getActivePlayers().length;
+            if (!playerCount) {
+                this.running = false;
+                return;
+            } else if (playerCount < state.requiredPlayers) {
+                this.broadcast({type: 'reset', payload: true});
+                this.gameState = Game.STATE_INIT;
             }
-            state.commit();
-            this.gameState = Game.STATE_INIT;
-            return;
         }
-        let handler = handlers[this.gameState];
-        this.gameState = handler.run(this.broadcast, this.refresh);
+        let lastState;
+        do {
+            lastState = this.gameState;
+            this.gameState = handlers[this.gameState].run(this.broadcast, this.refresh);
+        } while (lastState !== this.gameState);
+        setTimeout(() => this.loop(), 1000);
     }
 };

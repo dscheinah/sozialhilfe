@@ -8,7 +8,7 @@ module.exports = class Waiting extends Game.Base {
             let timeout = player.waiting;
             if (timeout) {
                 player.wait(timeout - 1);
-                if (!player.ai) {
+                if (!player.ai && player.active) {
                     nextState = Game.STATE_WAITING;
                 }
             }

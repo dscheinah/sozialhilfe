@@ -201,13 +201,13 @@
     state.listen('save', () => helper.set('#main-game-save', 'disabled', true));
     state.listen('create', () => helper.set('#main-game-create', 'disabled', true));
     state.listen('join', () => {
-        helper.set('#main-game-join', 'disabled', true)
+        helper.set('#main-game-join', 'disabled', true);
         helper.set('#main-game-leave', 'disabled', false);
     });
     state.listen('leave', () => {
         state.dispatch('loading', false);
         helper.set('#main-game-leave', 'disabled', true);
-        helper.set('#main-game-join', 'disabled', false)
+        helper.set('#main-game-join', 'disabled', false);
     });
 
     state.handle('sx-show-main', (payload, next) => {

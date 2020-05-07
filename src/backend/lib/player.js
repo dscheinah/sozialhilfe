@@ -50,6 +50,7 @@ module.exports = class Player {
     }
 
     setPrepared() {
+        this.rounds++;
         this.prepared = true;
     }
 
@@ -58,7 +59,6 @@ module.exports = class Player {
     }
 
     commit(profit) {
-        this.rounds++;
         if (profit && profit.length) {
             this.help = false;
             this.give(profit);
