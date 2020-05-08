@@ -232,7 +232,10 @@ module.exports = class Calculate extends Game.Base {
             if (!card.tax) {
                 if (!this.winner) {
                     card.tax = true;
-                    this.taxes.push(card);
+                    this.taxes.push({
+                        card: card.card,
+                        player: card.player.name,
+                    });
                     this.taxCards.push(card.card);
                 } else {
                     this.profit.push({
