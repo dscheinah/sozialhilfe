@@ -16,21 +16,21 @@ module.exports = class Prepare extends Game.Base {
                 if (player.private) {
                     player.useSavings();
                 } else {
-                    let insurance = state.getInsurance(player.name);
-                    if (insurance && state.players[insurance.name].cards.length > insurance.help) {
-                        player.give(state.players[insurance.name].drawCards(insurance.help));
+                    let insurance = state.getInsurance(player.name), owner = insurance && state.players[insurance.name];
+                    if (insurance && owner.cards.length > insurance.help) {
+                        player.give(owner.drawCards(insurance.help));
                     } else {
                         let helpCards = state.pool.drawCards(state.pool.helpAmount);
                         if (helpCards.length < state.pool.helpAmount) {
                             broadcast({type: 'finish', payload: true});
-                            return Game.STATE_INIT;
+                            return Game.STATE_FINISH;
                         }
                         helpActive = true;
                         player.give(helpCards);
                         if (state.insurances[player.name]) {
                             state.removeInsurance(player.name);
                         }
-                        if (insurance && state.players[insurance.name].cards.length <= insurance.help) {
+                        if (insurance && owner.cards.length <= insurance.help) {
                             state.removeInsurance(insurance.name);
                         }
                     }

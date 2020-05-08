@@ -53,13 +53,17 @@ module.exports = class Pool {
 
     returnCards(cards) {
         cards.forEach(card => this.currentSet[card]++);
-        let removeLevel = true;
+        let removeLevel = true, cardsOverBase = 0;
         for (let card in this.currentSet) {
-            if (this.currentSet[card] < this.baseSet[card]) {
+            let difference = this.currentSet[card] - this.baseSet[card];
+            if (difference >= 0) {
+                cardsOverBase += difference;
+            } else {
                 removeLevel = false;
+                break;
             }
         }
-        if (removeLevel) {
+        if (removeLevel && cardsOverBase > this.level * 15) {
             this.cards = [];
             for (let card in this.currentSet) {
                 this.currentSet[card] -= this.baseSet[card];

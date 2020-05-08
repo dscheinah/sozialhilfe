@@ -29,6 +29,9 @@ class State {
             return;
         }
         let data = JSON.parse(buffer.toString());
+        if (!data) {
+            return;
+        }
         this.round = data.round;
         Object.keys(data.players).forEach((name) => {
             let player = new Player(name), playerData = data.players[name];

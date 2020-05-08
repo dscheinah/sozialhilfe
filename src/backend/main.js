@@ -43,6 +43,11 @@ module.exports = class Main {
             }
             lastState = this.gameState;
             this.gameState = handlers[this.gameState].run(this.broadcast, this.refresh);
+            if (this.gameState === Game.STATE_FINISH) {
+                state.commit();
+                this.running = false;
+                return;
+            }
         } while (lastState !== this.gameState);
         setTimeout(() => this.loop(), 1000);
     }
