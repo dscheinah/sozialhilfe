@@ -12,29 +12,8 @@ module.exports = class Prepare extends Game.Base {
             if (player.ai && !player.savings.length && player.cards.length < 10) {
                 player.resetPrivate();
             }
-            if (player.needsHelp()) {
-                if (player.private) {
-                    player.useSavings();
-                } else {
-                    let insurance = state.getInsurance(player.name), owner = insurance && state.players[insurance.name];
-                    if (insurance && owner.cards.length > insurance.help) {
-                        player.give(owner.drawCards(insurance.help));
-                    } else {
-                        let helpCards = state.pool.drawCards(state.pool.helpAmount);
-                        if (helpCards.length < state.pool.helpAmount) {
-                            broadcast({type: 'finish', payload: true});
-                            return Game.STATE_FINISH;
-                        }
-                        helpActive = true;
-                        player.give(helpCards);
-                        if (state.insurances[player.name]) {
-                            state.removeInsurance(player.name);
-                        }
-                        if (insurance && owner.cards.length <= insurance.help) {
-                            state.removeInsurance(insurance.name);
-                        }
-                    }
-                }
+            if (this.checkHelp(player)) {
+                helpActive = true;
             }
             if (player.cards.length > 1 && player.cards.length <= state.playerSelectLimit && !player.ai) {
                 player.select(state.waitTimeout);
@@ -55,6 +34,37 @@ module.exports = class Prepare extends Game.Base {
             state.pool.restoreTaxes();
         }
         refresh(['statistics', 'players', 'insurances']);
+        if (!state.pool.cards.length) {
+            broadcast({type: 'finish', payload: true});
+            return Game.STATE_FINISH;
+        }
         return nextState;
+    }
+
+    checkHelp(player) {
+        if (!player.needsHelp()) {
+            return false;
+        }
+        if (player.private) {
+            if (player.savings.length) {
+                player.useSavings();
+                return false;
+            }
+            player.resetPrivate();
+        }
+        let insurance = state.getInsurance(player.name), owner = insurance && state.players[insurance.name];
+        if (insurance && owner.cards.length > insurance.help) {
+            player.give(owner.drawCards(insurance.help));
+        } else {
+            let helpCards = state.pool.drawCards(state.pool.helpAmount);
+            player.give(helpCards);
+            if (state.insurances[player.name]) {
+                state.removeInsurance(player.name);
+            }
+            if (insurance) {
+                state.removeInsurance(insurance.name);
+            }
+            return true;
+        }
     }
 };
