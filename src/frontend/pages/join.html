@@ -9,6 +9,7 @@
             <tr>
               <th></th>
               <th title="Die Auszahlung erfolgt analog der Sozialhilfe im Versicherungsfall.">Hilfe</th>
+              <th title="Ob Eigentum im Versicherungsfall zunächst verkauft werden muss.">Eigentum</th>
               <th title="Die Anzahl der Karten wird mathematisch gerundet.">Beitragshöhe</th>
               <th title="Die Beiträge werden in dieser Reihenfolge vom Gewinn abgezogen.">Reihenfolge</th>
               <th title="Diese Karten werden unabhängig von der Beitragshöhe als Beitrag behalten.">Karten</th>
@@ -40,6 +41,7 @@
             rows.push([
                 insurance.name,
                 insurance.help + ' Karten',
+                insurance.sell ? 'ja' : 'nein',
                 (insurance.taxes.amount * 100) + '%',
                 insurance.taxes.priority.map(card => cards[card]).join(', '),
                 insurance.taxes.cards.map(card => cards[card]).join(', '),

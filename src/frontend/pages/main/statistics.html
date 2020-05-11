@@ -6,6 +6,10 @@
       <th>Runde</th>
       <td id="main-statistics-game-round"></td>
     </tr>
+    <tr>
+      <th title="Die Anzahl der aktuell für Eigentum reservierten Karten.">Eigentum</th>
+      <td id="main-statistics-game-property"></td>
+    </tr>
   </table>
   <h3>Staat</h3>
   <table class="main-statistics-table">
@@ -50,14 +54,13 @@
       <th>privat versichert</th>
       <td id="main-statistics-players-private"></td>
     </tr>
-  </table>
-  <h3>Versicherungen</h3>
-  <table class="main-statistics-table">
     <tr>
-      <th>Anzahl</th><td id="main-statistics-insurances-count"></td>
+      <th>Versicherungen</th>
+      <td id="main-statistics-insurances-count"></td>
     </tr>
     <tr>
-      <th>Klienten</th><td id="main-statistics-insurances-members"></td>
+      <th>Klienten</th>
+      <td id="main-statistics-insurances-members"></td>
     </tr>
   </table>
 </template>
@@ -71,6 +74,7 @@
             return;
         }
         helper.set('#main-statistics-game-round', 'innerText', statistics.game.round);
+        helper.set('#main-statistics-game-property', 'innerText', statistics.game.property);
         helper.set('#main-statistics-players-active', 'innerText', statistics.players.active - statistics.players.ai);
         if (statistics.players.ai) {
             helper.set('#main-statistics-players-ai', 'innerText', '+' + statistics.players.ai);
@@ -90,7 +94,7 @@
         }
         helper.set('#main-statistics-pool-average', 'innerText', mappedCard);
         helper.set('#main-statistics-insurances-count', 'innerText', statistics.insurances.count);
-        helper.set('#main-statistics-insurances-members', 'innerText', statistics.insurances.members);
+        helper.set('#main-statistics-insurances-members', 'innerText', statistics.insurances.members)
     };
     state.listen('statistics', statistics => apply(statistics));
     state.handle('sx-show-main', (data, next) => {

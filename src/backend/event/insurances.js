@@ -8,6 +8,7 @@ module.exports = class Insurance extends require('../lib/handler.js') {
             insurances.push({
                 name: name,
                 help: insurance.help,
+                sell: insurance.sell,
                 taxes: insurance.taxes,
                 members: insurance.members.length,
             });

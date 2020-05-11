@@ -3,9 +3,16 @@ const state = require('../state.js');
 
 module.exports = class Statistics extends require('../lib/handler.js') {
     broadcast() {
+        let property = 0;
+        for (let name in state.players) {
+            let player = state.players[name];
+            player.houses.forEach(house => property += house.length);
+            property += player.contract.length;
+        }
         return {
             game: {
                 round: state.round,
+                property: property,
             },
             players: {
                 active: state.getActivePlayers().length,

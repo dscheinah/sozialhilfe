@@ -54,8 +54,18 @@ module.exports = class Prepare extends Game.Base {
         }
         let insurance = state.getInsurance(player.name), owner = insurance && state.players[insurance.name];
         if (insurance && owner.cards.length > insurance.help) {
+            if (insurance.sell) {
+                state.sellHouses(player.name);
+                if (!player.needsHelp()) {
+                    return false;
+                }
+            }
             player.give(owner.drawCards(insurance.help));
         } else {
+            state.sellHouses(player.name);
+            if (!player.needsHelp()) {
+                return false;
+            }
             let helpCards = state.pool.drawCards(state.pool.helpAmount);
             player.give(helpCards);
             if (state.insurances[player.name]) {

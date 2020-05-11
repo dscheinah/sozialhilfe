@@ -1,3 +1,14 @@
+const contractBase = {
+    1: 0,
+    2: 1,
+    3: 1,
+    4: 2,
+    5: 2,
+    6: 4,
+    7: 4,
+    8: 8,
+};
+
 module.exports = class Player {
     name = '';
     active = false;
@@ -12,6 +23,9 @@ module.exports = class Player {
     vote = false;
     private = false;
     savings = [];
+    houses = [];
+    contract = [];
+    contracted = false;
 
     constructor(name) {
         this.name = name;
@@ -47,6 +61,7 @@ module.exports = class Player {
         if (this.private) {
             this.help = false;
         }
+        this.contracted = false;
     }
 
     setPrepared() {
@@ -62,6 +77,10 @@ module.exports = class Player {
         if (profit && profit.length) {
             this.help = false;
             this.give(profit);
+        }
+        if (this.isContractCompleted()) {
+            this.houses.push(this.contract.sort());
+            this.contract = [];
         }
     }
 
@@ -103,5 +122,64 @@ module.exports = class Player {
     useSavings() {
         this.give(this.savings);
         this.savings = [];
+    }
+
+    resetSavings() {
+        this.savings = [];
+    }
+
+    sellHouses() {
+        let cardsToReturn = [], cardsToGive = [];
+        this.houses.forEach((house) => {
+            house.sort();
+            cardsToReturn.push(house.pop());
+            cardsToGive.push(house.pop());
+            if (house.length) {
+                cardsToReturn.push(...house);
+            }
+        });
+        this.houses = [];
+        this.help = false;
+        this.give(cardsToGive);
+        return cardsToReturn;
+    }
+
+    canContract(card) {
+        if (this.contracted || card <= 1 || this.isContractCompleted()) {
+            return false;
+        }
+        let reserved = {1: 0, 2: 0, 4: 0, 8: 0}, has = {1: 1, 2: 1, 4: 1, 8: 0};
+        [...this.contract, card].forEach((card) => {
+            let base = contractBase[card];
+            reserved[base]++;
+            if (card % 2) {
+                has[base] = 0;
+            }
+        });
+        let expected = 0;
+        for (let key in reserved) {
+            let value = reserved[key];
+            if (!value) {
+                continue;
+            }
+            expected += key * (value + has[key]);
+        }
+        return expected <= 16;
+    }
+
+    addContract(card) {
+        if (!this.canContract(card)) {
+            return false;
+        }
+        this.contract.push(card);
+        this.contracted = true;
+        return true;
+    }
+
+    isContractCompleted() {
+        if (this.contract.length < 2) {
+            return false;
+        }
+        return this.contract.reduce((length, card) => length + contractBase[card], 0) === 16;
     }
 };

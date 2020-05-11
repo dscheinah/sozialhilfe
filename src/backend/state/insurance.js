@@ -1,6 +1,7 @@
 module.exports = class Insurance {
     name = '';
     help = 0;
+    sell = false;
     taxes = {
         amount: 0.0,
         priority: [],
@@ -16,12 +17,16 @@ module.exports = class Insurance {
         this.help = help;
     }
 
+    setSell(sell) {
+        this.sell = !!sell;
+    }
+
     setTaxes(taxes) {
         let amount = parseFloat(taxes.amount), priority = (taxes.priority || []).map(card => parseInt(card));
         [1, 2, 3, 4, 5, 6, 7, 8].forEach((card) => {
-           if (priority.indexOf(card) < 0) {
-               priority.push(card);
-           }
+            if (priority.indexOf(card) < 0) {
+                priority.push(card);
+            }
         });
         this.taxes.amount = amount >= 0 ? amount : 0.0;
         this.taxes.priority = priority;
@@ -39,8 +44,17 @@ module.exports = class Insurance {
         }
     }
 
-    calculateTaxes(profit) {
+    calculateTaxes(profit, reduction) {
         let taxes = [], taxCount = Math.round(profit.length * this.taxes.amount);
+        if (reduction > 0) {
+            taxCount -= reduction;
+        }
+        if (taxCount < 1) {
+            taxCount = 1;
+        }
+        if (taxCount >= profit.length) {
+            taxCount = profit.length - 1;
+        }
         this.taxes.cards.forEach((card) => {
             let index = profit.indexOf(card);
             while (index >= 0) {

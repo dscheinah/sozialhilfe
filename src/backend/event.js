@@ -3,6 +3,7 @@ const types = {
     ai: new (require('./event/ai.js'))(),
     change: new (require('./event/change.js'))(),
     chat: new (require('./event/chat.js'))(),
+    contract: new (require('./event/contract.js'))(),
     create: new (require('./event/create.js'))(),
     donate: new (require('./event/donate.js'))(),
     insurances: new (require('./event/insurances.js'))(),

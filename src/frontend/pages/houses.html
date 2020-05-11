@@ -1,0 +1,112 @@
+<template>
+  <div class="sx-overlay">
+    <div class="sx-overlay-content">
+      <h2>Eigentum von <span id="houses-player"></span></h2>
+      <p id="houses-warn-private" class="houses-hidden sx-error">
+        Der Spieler besitzt weniger Häuser als andere, nicht privat versicherte Spieler und muss daher Steuern zahlen.
+      </p>
+      <p id="houses-warn-insurance" class="houses-hidden sx-error">
+        Ein Klient des Versicherungsunternehmens besitzt mehr Häuser als der Leiter der Versicherung.
+      </p>
+      <h3>Bausparvertrag</h3>
+      <ul id="houses-contract" class="sx-flex-list sx-card-list"></ul>
+      <h3>Häuser</h3>
+      <ol id="houses-houses"></ol>
+      <span class="sx-overlay-close" id="houses-close">×</span>
+    </div>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+    import {cards, images} from '../js/mapping.js';
+
+    const render = (player) => {
+        let houses = helper.element('#houses-houses'), contract = helper.element('#houses-contract');
+        if (!player || !contract || !houses) {
+            return;
+        }
+        helper.set('#houses-player', 'innerText', player.name);
+        helper.style('#houses-warn-private', 'display', player.private ? 'block' : null);
+        helper.style('#houses-warn-insurance', 'display', player.insurance ? 'block' : null);
+        let contractChildren = Array.from(contract.children), contractLength = contractChildren.length;
+        player.contract.forEach((card, index) => {
+            let li = contractChildren[index], img;
+            if (li) {
+                img = li.querySelector('img');
+            } else {
+                img = helper.create('img');
+                img.width = 50;
+                li = helper.create('li');
+                li.appendChild(img);
+                contract.appendChild(li);
+            }
+            img.src = images[card];
+            img.alt = cards[card];
+        });
+        for (let i = player.contract.length; i < contractLength; i++) {
+            contract.removeChild(contractChildren[i]);
+        }
+        let housesChildren = Array.from(houses.children), housesLength = housesChildren.length;
+        player.houses.forEach((house, index) => {
+            let houseElement = housesChildren[index], list;
+            if (houseElement) {
+                list = houseElement.querySelector('ul');
+            } else {
+                houseElement = helper.create('li');
+                list = helper.create('ul');
+                list.classList.add('sx-flex-list');
+                list.classList.add('sx-card-list');
+                houseElement.appendChild(list);
+                houses.appendChild(houseElement);
+            }
+            let houseChildren = Array.from(list.children), houseLength = houseChildren.length;
+            house.forEach((card) => {
+                let li = houseChildren[index], img;
+                if (li) {
+                    img = li.querySelector('img');
+                } else {
+                    img = helper.create('img');
+                    img.width = 50;
+                    li = helper.create('li');
+                    li.appendChild(img);
+                    list.appendChild(li);
+                }
+                img.src = images[card];
+                img.alt = cards[card];
+            });
+            for (let i = houses.length; i < houseLength; i++) {
+                list.removeChild(houseChildren[i]);
+            }
+        });
+        for (let i = player.houses.length; i < housesLength; i++) {
+            houses.removeChild(housesChildren[i]);
+        }
+    };
+    state.listen('houses', render)
+    state.handle('sx-show-houses', (payload, next) => {
+        render(state.get('houses'));
+        return next(payload);
+    });
+
+    action.listen('#houses-close', 'click', () => state.dispatch('close', 'houses'));
+</script>
+
+<style>
+  .houses-hidden {
+    display: none;
+  }
+
+  #houses-contract:empty:before {
+    content: "Der Spieler hat noch keine Karten eingezahlt.";
+  }
+
+  #houses-houses {
+    list-style-position: inside;
+    padding: 0;
+  }
+
+  #houses-houses:empty:before {
+    content: "Der Spieler besitzt noch keine Häuser.";
+  }
+</style>

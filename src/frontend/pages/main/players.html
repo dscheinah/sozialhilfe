@@ -6,25 +6,25 @@
 </template>
 
 <script>
-    import {helper, state} from '../../js/lib/sx.js';
+    import {action, helper, state} from '../../js/lib/sx.js';
 
     const cardsHelp = 'Die Anzahl der Karten ist auf volle Zehner gerundet.';
-    const scoreHelp = 'Die Punkte berechnen sich aus der Anzahl der Karten, dem durchschnittlichen Wert und den gespielten Runden.';
+    const scoreHelp = 'Die Punkte berechnen sich aus der Anzahl der Karten, deren durchschnittlichem Wert, dem Eigentum und den gespielten Runden.';
 
     const apply = (players) => {
         let list = helper.element('#main-players-list');
         if (!list || !players) {
             return;
         }
-        let items = list.children, length = items.length;
+        let items = Array.from(list.children), length = items.length;
         players.forEach((player, index) => {
             let item = items[index];
             if (!item) {
                 item = helper.create('li');
                 list.appendChild(item);
             }
-            let table = helper.create('table'), rows = {};
-            ['cards', 'score', 'private', 'savings', 'insurance', 'owner', 'members'].forEach((key) => {
+            let table = helper.create('table'), houses = helper.create('button'), rows = {};
+            ['cards', 'score', 'savings', 'insurance', 'members'].forEach((key) => {
                 let row = helper.create('tr');
                 table.appendChild(row);
                 rows[key] = row;
@@ -36,19 +36,35 @@
             }
             rows.score.innerHTML = `<th title="${scoreHelp}">Punkte</th><td>${player.score}</td>`;
             if (player.private) {
-                rows.private.innerHTML = '<th colspan="2">privat versichert</th>'
-                rows.savings.innerHTML = `<th title="${cardsHelp}">Rücklage</th><td>~${player.savings}</td>`
+                if (player.savings >= 10) {
+                    rows.savings.innerHTML = `<th title="${cardsHelp}">Rücklage</th><td>~${player.savings}</td>`;
+                } else {
+                    rows.savings.innerHTML = `<th>Rücklage</th><td>${player.savings}</td>`;
+                }
             }
             if (player.insurance) {
-                rows.insurance.innerHTML = `<th colspan="2">versichert bei<br/>${player.insurance}</th>`
+                rows.insurance.innerHTML = `<th colspan="2">🗎 ${player.insurance}</th>`;
             }
             if (player.owner) {
-                rows.owner.innerHTML = '<th colspan="2">Versicherung</th>';
                 rows.members.innerHTML = `<th>Klienten</th><td>${player.members}</td>`;
             }
             item.innerHTML = `<strong>${player.name}</strong>`;
             item.dataset.player = player.name;
             item.appendChild(table);
+            houses.dataset.player = JSON.stringify({
+                name: player.name,
+                private: player.warnPrivate,
+                insurance: player.warnInsurance,
+                contract: player.contract,
+                houses: player.houses,
+            });
+            if (player.houses.length || player.contract.length || player.warnPrivate || player.warnInsurance) {
+                houses.innerText = `Eigentum ${player.houses.length}${player.contract.length ? '+' : ''}`;
+                if (player.warnPrivate || player.warnInsurance) {
+                    houses.dataset.warn = '1';
+                }
+                item.appendChild(houses);
+            }
         });
         for (let i = players.length; i < length; i++) {
             list.removeChild(items[i]);
@@ -59,6 +75,8 @@
         apply(state.get('players'));
         return next(data);
     });
+
+    action.listen('#main-players-list button', 'click', (e) => state.dispatch('houses', e.target.dataset.player));
 </script>
 
 <style>
@@ -79,6 +97,9 @@
     border: 1px solid lightgray;
     box-shadow: 1px 1px 2px lightgray;
     border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
   }
 
   #main-players-list td {
@@ -93,5 +114,15 @@
     margin-bottom: .5em;
     text-overflow: ellipsis;
     overflow: hidden;
+  }
+
+  #main-players-list button {
+    margin-top: auto;
+  }
+
+  #main-players-list [data-warn]:before {
+    content: "\26a0";
+    position: absolute;
+    left: 15px;
   }
 </style>

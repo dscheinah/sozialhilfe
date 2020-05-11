@@ -3,8 +3,16 @@
     <form id="insurance-form" class="sx-overlay-content">
       <h2>Versicherungsunternehmen</h2>
       <div id="insurance-help-wrapper">
+        <h3>Einstellungen für den Versicherungsfall</h3>
+        <p>
+          Achtung: Diese können nur zur Gründung vorgenommen und später nicht angepasst werden.
+        </p>
         <input type="number" name="help" min="1" id="insurance-help"/>
-        <label for="insurance-help">Anzahl der ausgezahlten Karten im Versicherungsfall</label>
+        <label for="insurance-help">Anzahl der ausgezahlten Karten</label>
+        <div class="sx-input">
+          <input type="checkbox" name="sell" value="1" id="insurance-sell"/>
+          <label for="insurance-sell">Eigentum muss zunächst verkauft werden.</label>
+        </div>
       </div>
       <div class="insurance-peek">
         <small id="insurance-amount-peek"></small>
@@ -79,6 +87,9 @@
             cardList.appendChild(label);
         });
         helper.set('#insurance-help', 'value', insurance.help || 2);
+        if (insurance.sell) {
+            helper.set('#insurance-sell', 'checked', true);
+        }
         helper.set('#insurance-amount', 'value', insurance.taxes.amount || 0.4);
         helper.set('#insurance-amount-peek', 'innerText', amount.value * 100);
     };
@@ -117,6 +128,7 @@
         state.dispatch('loading', true);
         state.dispatch(create ? 'create' : 'change', {
             help: data.get('help'),
+            sell: data.get('sell'),
             amount: data.get('amount'),
             priority: data.getAll('priority'),
             cards: data.getAll('cards'),
@@ -181,5 +193,11 @@
     position: absolute;
     right: 0;
     top: .5em;
+  }
+
+  #insurance-help-wrapper {
+    border: 1px solid lightgray;
+    padding: 1em;
+    margin-bottom: 2em;
   }
 </style>

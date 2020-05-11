@@ -19,6 +19,7 @@ state.handle('login', async (payload) => {
     'ai',
     'change',
     'chat',
+    'contract',
     'create',
     'donate',
     'insurances',
@@ -42,6 +43,7 @@ state.handle('login', async (payload) => {
     'change',
     'chat',
     'commit',
+    'contract',
     'create',
     'dead',
     'donate',
@@ -69,9 +71,11 @@ server.connect();
     'select',
     'accept',
     'changed',
+    'contract',
     'donate',
     'donation',
     'help',
+    'houses',
     'insurance',
     'join',
     'message',
@@ -116,6 +120,10 @@ state.handle('close', (page, next) => {
     return next(page);
 });
 state.handle('message', message => message);
+state.handle('houses', (json) => {
+    stack.show('houses');
+    return JSON.parse(json);
+});
 state.handle('donate-select', (type, next) => {
     stack.show('donate');
     return next(type);
@@ -134,6 +142,10 @@ state.handle('insurance-select', (payload, next) => {
 });
 state.handle('join-select', (payload, next) => {
     stack.show('join');
+    return next(payload);
+});
+state.handle('contract-select', (payload, next) => {
+    stack.show('contract');
     return next(payload);
 });
 
@@ -207,6 +219,11 @@ state.listen('change', (data) => {
     }
 });
 state.listen('join', () => stack.hide('join'));
+state.listen('contract', (payload) => {
+    if (payload && payload.player === state.get('player-name')) {
+        stack.hide('contract');
+    }
+});
 
 action.listen('[title]', 'click', (e) => {
     let target = e.target;

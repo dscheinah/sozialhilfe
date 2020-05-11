@@ -16,7 +16,7 @@
         <p>Wähle die Karten, die gespendet werden sollen:</p>
         <ul id="donate-cards" class="sx-flex-list sx-card-list"></ul>
       </div>
-      <button id="donate-donate" type="submit">spenden</button>
+      <button type="submit">spenden</button>
       <span id="donate-error" class="sx-error donate-hidden">Bitte wähle mindestens eine Karte.</span>
       <span class="sx-overlay-close" id="donate-close">×</span>
     </form>
@@ -41,7 +41,7 @@
         }
         let select = helper.element('#donate-player');
         if (select && players) {
-            let options = select.children, length = options.length;
+            let options = Array.from(select.children), length = options.length;
             players.forEach((player, index) => {
                 let option = options[index];
                 if (!option) {

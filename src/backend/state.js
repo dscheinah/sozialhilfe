@@ -40,11 +40,14 @@ class State {
             player.rounds = playerData.rounds;
             player.private = playerData.private;
             player.savings = playerData.savings;
+            player.houses = playerData.houses;
+            player.contract = playerData.contract;
             this.players[name] = player;
         });
         Object.keys(data.insurances).forEach((name) => {
             let insurance = new Insurance(name), insuranceData = data.insurances[name];
             insurance.help = insuranceData.help;
+            insurance.sell = insuranceData.sell;
             insurance.taxes = insuranceData.taxes;
             insurance.members = insuranceData.members;
             this.insurances[name] = insurance;
@@ -178,6 +181,7 @@ class State {
         }
         this.insuranceToCreate = new Insurance(name);
         this.insuranceToCreate.setHelp(help);
+        this.insuranceToCreate.setSell(configuration.sell);
         this.insuranceToCreate.setTaxes(configuration);
         this.openTaxes.push(...this.openProfit);
         this.openProfit = [];
@@ -213,6 +217,101 @@ class State {
         return null;
     }
 
+    canReplacePrivate(name) {
+        let check = this.players[name];
+        if (!check) {
+            return false;
+        }
+        let opponent = null, length = check.houses.length;
+        this.getPrivatePlayers().forEach((player) => {
+            let current = player.houses.length;
+            if (current < length) {
+                length = current;
+                opponent = player;
+            }
+        });
+        return opponent;
+    }
+
+    housesForPrivateOk(name) {
+        let check = this.players[name];
+        if (!check) {
+            return true;
+        }
+        let ok = true, length = check.houses.length;
+        this.getActivePlayers().forEach((player) => {
+            if (!player.private && player.houses.length > length) {
+                ok = false;
+            }
+        });
+        return ok;
+    }
+
+    housesForInsuranceOk(name) {
+        let check = this.players[name], insurance = this.insurances[name];
+        if (!check || !insurance) {
+            return true;
+        }
+        let ok = true, length = check.houses.length;
+        insurance.members.forEach((playerName) => {
+            let player = this.players[playerName];
+            if (player && player.houses.length > length) {
+                ok = false;
+            }
+        });
+        return ok;
+    }
+
+    housesForPrivateSellOk(name) {
+        let player = this.players[name];
+        if (!player) {
+            return false;
+        }
+        let reference = player.houses.length, over = 0;
+        for (let key in this.players) {
+            if (this.players[key].houses.length >= reference) {
+                over++;
+            }
+        }
+        return over >= 2;
+    }
+
+    addContract(name, card) {
+        let player = this.players[name];
+        if (!player || !player.canContract(card)) {
+            return '';
+        }
+        if (this.openInsurance && this.openInsurance.name === name) {
+            let index = this.openInsurance.cards.indexOf(card);
+            if (index >= 0 && player.addContract(card)) {
+                this.openInsurance.cards.splice(index, 1);
+                return 'insurance';
+            }
+            return '';
+        }
+        if (!player.winner || !this.removeFromProfit([card]).length) {
+            return '';
+        }
+        if (!player.addContract(card)) {
+            this.openProfit.push(card);
+            return '';
+        }
+        return 'profit';
+    }
+
+    sellHouses(name) {
+        let player = this.players[name];
+        if (!player) {
+            return;
+        }
+        let cards = player.sellHouses();
+        if (!cards.length) {
+            return;
+        }
+        this.pool.returnCards(cards, true);
+        player.give(this.pool.drawCards(Math.floor(cards.length / 2)));
+    }
+
     commit() {
         for (let name in this.players) {
             let player = this.players[name];
@@ -238,7 +337,7 @@ class State {
             }
             if (!player.private && player.savings.length) {
                 this.pool.returnCards(player.savings);
-                player.savings = [];
+                player.resetSavings();
             }
         }
         this.donation = null;

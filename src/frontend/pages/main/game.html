@@ -14,6 +14,7 @@
       <ul id="main-game-insurance" class="sx-flex-list sx-card-list main-game-card-list"></ul>
     </div>
     <div class="sx-buttons main-game-buttons">
+      <button id="main-game-contract" disabled>Bausparen</button>
       <button id="main-game-save" data-type="private" class="main-game-hidden" disabled>Rücklage auswählen</button>
       <button id="main-game-create" data-type="pool" class="main-game-hidden" disabled>Versicherung gründen</button>
       <button id="main-game-donate-profit" disabled>offen spenden</button>
@@ -42,6 +43,7 @@
 
     const actionMapping = {
         'change': '#main-game-change',
+        'contract': '#main-game-contract',
         'create': '#main-game-create',
         'donate-profit': '#main-game-donate-profit',
         'donate-hidden': '#main-game-donate-hidden',
@@ -61,6 +63,7 @@
         [
             '#main-game-next',
             '#main-game-change',
+            '#main-game-contract',
             '#main-game-create',
             '#main-game-donate-profit',
             '#main-game-donate-hidden',
@@ -209,6 +212,12 @@
         helper.set('#main-game-leave', 'disabled', true);
         helper.set('#main-game-join', 'disabled', false);
     });
+    state.listen('contract', (payload) => {
+        if (payload && payload.player === state.get('player-name')) {
+            helper.set('#main-game-create', 'disabled', true);
+            helper.set('#main-game-contract', 'disabled', true);
+        }
+    });
 
     state.handle('sx-show-main', (payload, next) => {
         let calculations = state.get('calculate');
@@ -243,6 +252,7 @@
         state.dispatch('loading', true);
         state.dispatch('leave');
     });
+    action.listen('#main-game-contract', 'click', () => state.dispatch('contract-select'));
 
     state.listen('next', () => {
         helper.set('#main-game-timer', 'innerHTML', null);

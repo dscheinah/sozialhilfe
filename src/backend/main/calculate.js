@@ -54,7 +54,7 @@ module.exports = class Calculate extends Game.Base {
                 playerActions.push('donate-hidden');
             }
             if (player === this.winner) {
-                playerActions.push('donate-profit');
+                playerActions.push('donate-profit', 'contract');
                 if (player.private) {
                     playerActions.push('save');
                 } else if (!insurance && state.isInsurancePossible()) {
@@ -65,11 +65,14 @@ module.exports = class Calculate extends Game.Base {
                 playerActions.push('return');
             }
             if (!player.private) {
-                if (privatePossible) {
+                if (privatePossible || state.canReplacePrivate(player.name)) {
                     playerActions.push('private');
                 }
                 if (insurance) {
                     playerActions.push('change');
+                    if (this.winner && insurance.members.indexOf(this.winner.name) >= 0) {
+                        playerActions.push('contract');
+                    }
                 } else if (state.getInsurance(player.name)) {
                     playerActions.push('leave');
                 } else if (insuranceCount) {
@@ -149,10 +152,25 @@ module.exports = class Calculate extends Game.Base {
     }
 
     calculateTaxes() {
-        if (!this.winner || this.winner.private || state.getInsurance(this.winner.name)) {
+        if (!this.winner || state.getInsurance(this.winner.name)) {
             return;
         }
-        let calculations = {}, level = 0, taxCount = state.pool.getTaxCount(this.cards.length);
+        let taxCount = state.pool.getTaxCount(this.cards.length);
+        if (this.winner.private) {
+            if (state.housesForPrivateOk(this.winner.name)) {
+                return;
+            }
+            taxCount += 2;
+        } else {
+            taxCount -= this.winner.houses.length;
+        }
+        if (taxCount < 1) {
+            taxCount = 1;
+        }
+        if (taxCount >= this.cards.length) {
+            taxCount = this.cards.length - 1;
+        }
+        let calculations = {}, level = 0;
         this.cards.forEach((card) => {
             if (calculations[card.card]) {
                 let current = ++calculations[card.card];
@@ -204,6 +222,11 @@ module.exports = class Calculate extends Game.Base {
         if (!insurance) {
             return;
         }
+        let owner = state.players[insurance.name];
+        if (!owner) {
+            return;
+        }
+        let houseDifference = this.winner.houses.length - owner.houses.length;
         let cards = [];
         this.insurance = {
             name: insurance.name,
@@ -211,7 +234,7 @@ module.exports = class Calculate extends Game.Base {
             cards: [],
         };
         this.cards.forEach(card => cards.push(card.card));
-        insurance.calculateTaxes(cards).forEach((tax) => {
+        insurance.calculateTaxes(cards, houseDifference).forEach((tax) => {
             for (let i = this.cards.length; i--;) {
                 let card = this.cards[i];
                 if (card.card === tax && !card.tax) {
@@ -219,6 +242,7 @@ module.exports = class Calculate extends Game.Base {
                     this.insurance.taxes.push({
                         card: card.card,
                         player: card.player.name,
+                        contract: owner.canContract(card.card),
                     });
                     this.insurance.cards.push(card.card);
                     return;
@@ -241,6 +265,7 @@ module.exports = class Calculate extends Game.Base {
                     this.profit.push({
                         card: card.card,
                         player: card.player.name,
+                        contract: this.winner.canContract(card.card),
                     });
                     this.profitCards.push(card.card);
                 }

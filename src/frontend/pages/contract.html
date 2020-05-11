@@ -1,0 +1,127 @@
+<template>
+  <div class="sx-overlay">
+    <form id="contract-form" class="sx-overlay-content">
+      <h2>Bausparvertrag</h2>
+      <p>Deine bisher eingezahlten Karten:</p>
+      <ul id="contract-cards" class="sx-flex-list sx-card-list"></ul>
+      <div class="contract-hidden" id="contract-card">
+        <p>Wähle die neu einzuzahlende Karte:</p>
+        <ul id="contract-select" class="sx-flex-list sx-card-list"></ul>
+        <button type="submit">einzahlen</button>
+      </div>
+      <p class="contract-hidden" id="contract-no-card">
+        Es ist leider keine zum aktuellen Bausparvertrag passende Karte verfügbar.
+      </p>
+      <span class="sx-overlay-close" id="contract-close">×</span>
+    </form>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+    import {cards as cardMapping, images} from '../js/mapping.js';
+
+    let contract, cards;
+    const render = () => {
+        let contractList = helper.element('#contract-cards'), selectList = helper.element('#contract-select');
+        if (!contract || !cards || !contractList || !selectList) {
+            return;
+        }
+        let children = Array.from(contractList.children), length = children.length;
+        contract.forEach((card, index) => {
+            let li = children[index], img;
+            if (li) {
+                img = li.querySelector('img');
+            } else {
+                img = helper.create('img');
+                img.width = 50;
+                li = helper.create('li');
+                li.appendChild(img);
+                contractList.appendChild(li);
+            }
+            img.src = images[card];
+            img.alt = cardMapping[card];
+        });
+        for (let i = contract.length; i < length; i++) {
+            contractList.removeChild(children[i]);
+        }
+        selectList.innerHTML = '';
+        if (cards.length) {
+            helper.style('#contract-card', 'display', 'block');
+            helper.style('#contract-no-card', 'display', null);
+        } else {
+            helper.style('#contract-no-card', 'display', 'block');
+            helper.style('#contract-card', 'display', null);
+            return;
+        }
+        cards.forEach((card) => {
+            let li = helper.create('li'), label = helper.create('label');
+            let img = helper.create('img'), input = helper.create('input');
+            img.src = images[card];
+            img.alt = cardMapping[card];
+            img.width = 100;
+            input.type = 'radio';
+            input.name = 'card';
+            input.value = card;
+            label.appendChild(img);
+            label.appendChild(input);
+            li.appendChild(label);
+            selectList.appendChild(li);
+        });
+    };
+
+    state.listen('players', (players) => {
+        let name = state.get('player-name');
+        players.forEach((player) => {
+            if (player.name === name) {
+                contract = player.contract;
+            }
+        });
+        render();
+    });
+    state.listen('calculate', (calculate) => {
+        let name = state.get('player-name'), base;
+        cards = [];
+        if (calculate.player === name) {
+            base = calculate.profit;
+        } else if (calculate.owner === name) {
+            base = calculate.insurance;
+        }
+        if (base) {
+            base.forEach((card) => {
+                if (card.contract) {
+                    cards.push(card.card);
+                }
+            });
+        }
+        render();
+    });
+    state.handle('sx-show-contract', (payload, next) => {
+        render();
+        return next(payload);
+    });
+
+    action.listen('#contract-form', 'submit', (e) => {
+        e.preventDefault();
+        state.dispatch('loading', true);
+        let data = new FormData(e.target);
+        state.dispatch('contract', data.get('card'));
+    });
+    action.listen('#contract-close', 'click', () => state.dispatch('close', 'contract'));
+
+    state.listen('contract', (payload) => {
+        if (payload && payload.player) {
+            state.dispatch('loading', false);
+        }
+    });
+</script>
+
+<style>
+  .contract-hidden {
+    display: none;
+  }
+
+  #contract-cards:empty:before {
+    content: "Es wurden noch keine Karten eingezahlt.";
+  }
+</style>
