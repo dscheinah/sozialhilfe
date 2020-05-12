@@ -45,25 +45,20 @@ module.exports = class Insurance {
     }
 
     calculateTaxes(profit, reduction) {
-        let taxes = [], taxCount = Math.round(profit.length * this.taxes.amount);
-        if (reduction > 0) {
-            taxCount -= reduction;
-        }
-        if (taxCount < 1) {
-            taxCount = 1;
-        }
-        if (taxCount >= profit.length) {
-            taxCount = profit.length - 1;
-        }
-        this.taxes.cards.forEach((card) => {
+        let taxes = [], priorityLength = this.taxes.priority.length;
+        for (let i = 0; i < priorityLength; i++) {
+            let card = this.taxes.priority[i];
+            if (this.taxes.cards.indexOf(card) < 0) {
+                continue;
+            }
             let index = profit.indexOf(card);
             while (index >= 0) {
                 taxes.push(card);
                 profit.splice(index, 1);
                 index = profit.indexOf(card);
             }
-        });
-        let priorityLength = this.taxes.priority.length;
+        }
+        let taxCount = Math.round(profit.length * this.taxes.amount);
         for (let i = 0; i < priorityLength && taxes.length < taxCount; i++) {
             let card = this.taxes.priority[i], index = profit.indexOf(card);
             while (taxes.length < taxCount && index >= 0) {
@@ -71,6 +66,10 @@ module.exports = class Insurance {
                 profit.splice(index, 1);
                 index = profit.indexOf(card);
             }
+        }
+        while (reduction > 0 && taxes.length > 1) {
+            taxes.pop();
+            reduction--;
         }
         return taxes;
     }
