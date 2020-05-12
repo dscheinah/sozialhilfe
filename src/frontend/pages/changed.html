@@ -48,3 +48,9 @@
 
     action.listen('#changed-close', 'click', () => state.dispatch('close', 'changed'));
 </script>
+
+<style>
+  #changed-cards:empty:before {
+    content: "keine";
+  }
+</style>
