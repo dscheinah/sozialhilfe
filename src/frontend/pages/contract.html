@@ -89,7 +89,7 @@
         }
         if (base) {
             base.forEach((card) => {
-                if (card.contract) {
+                if (!card.mark && card.contract) {
                     cards.push(card.card);
                 }
             });
