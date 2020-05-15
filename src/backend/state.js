@@ -19,6 +19,7 @@ class State {
     round = 1;
     insurances = {};
     insuranceToCreate;
+    bid;
 
     constructor() {
         if (!fs.existsSync(file)) {
@@ -312,6 +313,77 @@ class State {
         player.give(this.pool.drawCards(Math.floor(cards.length / 2)));
     }
 
+    startBid(name, id) {
+        let player = this.players[name];
+        if (!player || !player.houses[id]) {
+            return false;
+        }
+        this.bid = {
+            player: name,
+            id: id,
+            bids: {},
+            confirmed: '',
+            timer: Math.round(this.waitTimeout / 2),
+            bots: false,
+        };
+        return true;
+    }
+
+    addBid(name, cards) {
+        let player = this.players[name];
+        if (!player || player.cards.length < cards || !this.bid || this.bid.confirmed) {
+            return false;
+        }
+        this.bid.bids[name] = cards;
+        return true;
+    }
+
+    reduceBidTimer() {
+        if (!this.bid || !this.bid.timer) {
+            return;
+        }
+        if (Object.keys(this.bid.bids).length >= this.getActivePlayers().length - 1) {
+            this.bid.timer = 0;
+            return;
+        }
+        this.bid.timer--;
+        if (this.bid.timer < 0) {
+            this.bid.timer = 0;
+        }
+    }
+
+    botsBid() {
+        if (!this.bid || this.bid.bots) {
+            return;
+        }
+        this.bid.bots = true;
+    }
+
+    confirmBid(name) {
+        if (!this.bid || !this.bid.bids[name]) {
+            return;
+        }
+        this.bid.confirmed = name;
+    }
+
+    getBestBids() {
+        let bids = [];
+        if (!this.bid) {
+            return [];
+        }
+        for (let player in this.bid.bids) {
+            bids.push({
+                player: player,
+                cards: this.bid.bids[player],
+            });
+        }
+        bids.sort((a, b) => a.cards - b.cards);
+        if (bids.length <= 2) {
+            return bids;
+        }
+        return bids.splice(-2, 2);
+    }
+
     commit() {
         for (let name in this.players) {
             let player = this.players[name];
@@ -340,6 +412,25 @@ class State {
                 player.resetSavings();
             }
         }
+        if (this.bid && Object.keys(this.bid.bids).length) {
+            let source = this.players[this.bid.player], house = source.sellHouse(this.bid.id);
+            if (house) {
+                let target;
+                if (this.bid.confirmed) {
+                    target = this.players[this.bid.confirmed];
+                } else {
+                    target = this.players[this.getBestBids().pop().player];
+                }
+                let amount = this.bid[target.name];
+                target.purchaseHouse(house);
+                let cards = target.drawCards(amount);
+                if (cards.length < amount) {
+                    cards.push(...this.pool.drawCards(amount - cards.length));
+                }
+                source.give(cards);
+            }
+        }
+        this.bid = null;
         this.donation = null;
         this.savings = null;
         this.pool.returnCards(this.openTaxes);

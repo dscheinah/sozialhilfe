@@ -144,6 +144,14 @@ module.exports = class Player {
         return cardsToReturn;
     }
 
+    sellHouse(id) {
+        return this.houses.splice(id, 1).pop();
+    }
+
+    purchaseHouse(house) {
+        this.houses.push(house);
+    }
+
     canContract(card) {
         if (this.contracted || card <= 1 || this.isContractCompleted()) {
             return false;

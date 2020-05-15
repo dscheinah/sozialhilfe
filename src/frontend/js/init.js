@@ -17,8 +17,10 @@ state.handle('login', async (payload) => {
 [
     'accept',
     'ai',
+    'bid',
     'change',
     'chat',
+    'confirm',
     'contract',
     'create',
     'donate',
@@ -31,18 +33,20 @@ state.handle('login', async (payload) => {
     'return',
     'save',
     'select',
+    'sell',
     'statistics',
 ].forEach((call) => {
     state.handle(call, payload => server.handle(call, payload));
 });
 [
-    'accept',
     'actions',
+    'bid',
     'calculate',
     'cards',
     'change',
     'chat',
     'commit',
+    'confirm',
     'contract',
     'create',
     'dead',
@@ -55,22 +59,25 @@ state.handle('login', async (payload) => {
     'return',
     'save',
     'selecting',
+    'sell',
     'statistics',
+    'update',
     'version',
     'waiting',
 ].forEach((event) => {
     server.listen(event, payload => state.set(event, payload));
 });
-server.connect();
 
 [
     'login',
     'main',
     'finish',
     'dead',
+    'changed',
     'select',
     'accept',
-    'changed',
+    'bid',
+    'confirm',
     'contract',
     'donate',
     'donation',
@@ -179,7 +186,7 @@ state.listen('selecting', (payload) => {
 state.listen('select', () => stack.hide('select'));
 state.listen('calculate', () => stack.hide('select'));
 state.listen('commit', () => {
-    ['donate', 'accept', 'return', 'insurance'].forEach(id => stack.hide(id));
+    ['donate', 'accept', 'return', 'insurance', 'bid', 'confirm', 'contract', 'save'].forEach(id => stack.hide(id));
 });
 state.listen('donate', (payload) => {
     let name = state.get('player-name');
@@ -224,6 +231,34 @@ state.listen('contract', (payload) => {
         stack.hide('contract');
     }
 });
+state.listen('sell', (payload) => {
+    if (!payload) {
+        return;
+    }
+    if (payload.player !== state.get('player-name')) {
+        state.dispatch('loading', false);
+        stack.show('bid');
+    } else {
+        stack.hide('houses');
+    }
+});
+state.listen('bid', (payload) => {
+    if (!payload) {
+        return;
+    }
+    let name = state.get('player-name');
+    if (payload.player === name) {
+        stack.hide('bid');
+    }
+    if (payload.bid.player === name) {
+        state.dispatch('loading', false);
+        stack.show('confirm');
+    }
+});
+state.listen('confirm', () => {
+   stack.hide('bid');
+   stack.hide('confirm');
+});
 
 action.listen('[title]', 'click', (e) => {
     let target = e.target;
@@ -239,4 +274,5 @@ action.listen('[title]', 'click', (e) => {
 loader.run().then(() => {
     stack.enable(helper.element('#sx-stack'));
     stack.show('login');
+    server.connect();
 });

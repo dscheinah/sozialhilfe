@@ -1,0 +1,59 @@
+<template>
+  <div class="sx-overlay">
+    <form id="bid-form" class="sx-overlay-content">
+      <h2>Auktion</h2>
+      <p>Spieler <span id="bid-player"></span> versteigert sein Haus:</p>
+      <ul id="bid-house" class="sx-flex-list sx-card-list"></ul>
+      <input id="bid-bid" type="number" min="1"/>
+      <label for="bid-bid">Gebot</label>
+      <div class="sx-buttons">
+        <button type="submit">bieten</button>
+        <button id="bid-cancel" type="button">abbrechen</button>
+      </div>
+    </form>
+  </div>
+</template>
+
+<script>
+  import {action, helper, state} from '../js/lib/sx.js';
+  import {cards, images} from '../js/mapping.js';
+
+  let data;
+  const render = () => {
+      let list = helper.element('#bid-house');
+      if (!data || !list) {
+          return;
+      }
+      helper.set('#bid-player', 'innerText', data.player);
+      list.innerHTML = '';
+      data.house.forEach((card) => {
+          let li = helper.create('li'), img = helper.create('img');
+          img.width = 50;
+          img.src = images[card];
+          img.alt = cards[card];
+          li.appendChild(img);
+          list.appendChild(li);
+      });
+  };
+
+  state.listen('sell', (payload) => {
+      data = payload;
+      render();
+  });
+  state.handle('sx-show-bid', (payload, next) => {
+      render();
+      return next(payload);
+  });
+
+  action.listen('#bid-form', 'submit', (e) => {
+     e.preventDefault();
+     state.dispatch('loading', true);
+     state.dispatch('bid', helper.get('#bid-bid', 'value'));
+  });
+  action.listen('#bid-cancel', 'click', () => state.dispatch('close', 'bid'));
+  state.listen('bid', (payload) => {
+     if (payload && payload.player === state.get('player-name')) {
+         state.dispatch('loading', false);
+     }
+  });
+</script>

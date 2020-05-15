@@ -9,6 +9,18 @@ module.exports = class Commit extends Game.Base {
                 state.acceptDonation();
             }
         }
+        if (state.bid && Object.keys(state.bid.bids).length) {
+            let name = state.bid.confirmed;
+            if (!name) {
+                name = state.getBestBids().pop().player;
+            }
+            broadcast({
+                type: 'chat',
+                payload: {
+                    message: `Das Haus wurde für ${state.bid.bids[name]} Karten an ${name} verkauft.`,
+                },
+            });
+        }
         let vote = false, returnTaxes = true;
         state.getPreparedPlayers().forEach((player) => {
             if (player.vote) {

@@ -1,0 +1,94 @@
+<template>
+  <div class="sx-overlay">
+    <form id="confirm-form" class="sx-overlay-content">
+      <h2>Auktion</h2>
+      <p>Wähle aus den zwei höchsten Geboten:</p>
+      <div class="sx-input">
+        <input id="confirm-any" type="radio" name="player" value="" checked/>
+        <label for="confirm-any">egal (der Spieler mit dem höchsten Gebot)</label>
+      </div>
+      <div id="confirm-list"></div>
+      <div class="sx-next-wrapper">
+        <button id="confirm-button" disabled>
+          auswählen <span id="confirm-timer" class="sx-timer"></span>
+        </button>
+      </div>
+    </form>
+  </div>
+</template>
+
+<script>
+    import {action, helper, state} from '../js/lib/sx.js';
+
+    let data;
+    const render = () => {
+        let list = helper.element('#confirm-list');
+        if (!data || !list) {
+            helper.set('#confirm-button', 'disabled', true);
+            return;
+        }
+        if (data.bid.timer === 0) {
+            helper.set('#confirm-button', 'disabled', false);
+            helper.set('#confirm-timer', 'innerText', '');
+        } else {
+            helper.set('#confirm-button', 'disabled', true);
+            helper.set('#confirm-timer', 'innerText', data.bid.timer);
+        }
+        let children = Array.from(list.children), length = children.length;
+        data.bids.forEach((bid, index) => {
+            let item = children[index], input, label;
+            if (!item) {
+                item = helper.create('div');
+                item.classList.add('sx-input');
+                input = helper.create('input');
+                input.type = 'radio';
+                input.name = 'player';
+                label = helper.create('label');
+                item.appendChild(input);
+                item.appendChild(label);
+                list.appendChild(item);
+            } else {
+                input = item.querySelector('input');
+                label = item.querySelector('label');
+            }
+            let id = 'confirm-input' + index;
+            input.id = id;
+            if (input.value !== bid.player) {
+                input.value = bid.player;
+                input.checked = false;
+            }
+            label.setAttribute('for', id);
+            label.innerText = `${bid.cards} Karten von ${bid.player}`;
+        });
+        for (let i = data.bids.length; i < length; i++) {
+            list.removeChild(children[i]);
+        }
+    };
+
+    state.listen('bid', (payload) => {
+        if (payload) {
+            data = payload;
+            render();
+        }
+    });
+    state.listen('update', (payload) => {
+        data = payload;
+        render();
+    });
+    state.handle('sx-show-confirm', (payload, next) => {
+        render();
+        return next(payload);
+    });
+
+    action.listen('#confirm-form', 'submit', (e) => {
+        e.preventDefault();
+        let data = new FormData(e.target), player = data.get('player');
+        if (player) {
+            state.dispatch('loading', true);
+            state.dispatch('confirm', player);
+        } else {
+            state.dispatch('close', 'confirm');
+        }
+    });
+    state.listen('confirm', () => state.dispatch('loading', false));
+</script>

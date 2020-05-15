@@ -48,20 +48,27 @@
             contract.removeChild(contractChildren[i]);
         }
         let housesChildren = Array.from(houses.children), housesLength = housesChildren.length;
+        let name = state.get('player-name');
         player.houses.forEach((house, index) => {
-            let houseElement = housesChildren[index], list;
+            let houseElement = housesChildren[index], list, button;
             if (houseElement) {
                 list = houseElement.querySelector('ul');
+                button = houseElement.querySelector('button');
             } else {
                 houseElement = helper.create('li');
                 list = helper.create('ul');
                 list.classList.add('sx-flex-list');
                 list.classList.add('sx-card-list');
+                button = helper.create('button');
+                button.innerText = 'versteigern';
+                button.value = index;
                 houseElement.appendChild(list);
+                houseElement.appendChild(button);
                 houses.appendChild(houseElement);
             }
+            button.style.display = player.name === name ? 'block' : null;
             let houseChildren = Array.from(list.children), houseLength = houseChildren.length;
-            house.forEach((card) => {
+            house.forEach((card, index) => {
                 let li = houseChildren[index], img;
                 if (li) {
                     img = li.querySelector('img');
@@ -75,7 +82,7 @@
                 img.src = images[card];
                 img.alt = cards[card];
             });
-            for (let i = houses.length; i < houseLength; i++) {
+            for (let i = house.length; i < houseLength; i++) {
                 list.removeChild(houseChildren[i]);
             }
         });
@@ -83,12 +90,16 @@
             houses.removeChild(housesChildren[i]);
         }
     };
-    state.listen('houses', render)
+    state.listen('houses', render);
     state.handle('sx-show-houses', (payload, next) => {
         render(state.get('houses'));
         return next(payload);
     });
 
+    action.listen('#houses-houses button', 'click', (e) => {
+        state.dispatch('loading', 'Warte auf Gebote von anderen Spielern.');
+        state.dispatch('sell', e.target.value);
+    });
     action.listen('#houses-close', 'click', () => state.dispatch('close', 'houses'));
 </script>
 
@@ -108,5 +119,10 @@
 
   #houses-houses:empty:before {
     content: "Der Spieler besitzt noch keine Häuser.";
+  }
+
+  #houses-houses button {
+    display: none;
+    margin: -1em 0 1em 0;
   }
 </style>

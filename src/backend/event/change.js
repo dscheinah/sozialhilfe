@@ -25,6 +25,7 @@ module.exports = class Change extends require('../lib/handler.js') {
                 };
             }
         }
+        return false;
     }
 
     events() {

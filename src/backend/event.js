@@ -1,8 +1,10 @@
 const types = {
     accept: new (require('./event/accept.js'))(),
     ai: new (require('./event/ai.js'))(),
+    bid: new (require('./event/bid.js'))(),
     change: new (require('./event/change.js'))(),
     chat: new (require('./event/chat.js'))(),
+    confirm: new (require('./event/confirm.js'))(),
     contract: new (require('./event/contract.js'))(),
     create: new (require('./event/create.js'))(),
     donate: new (require('./event/donate.js'))(),
@@ -16,6 +18,7 @@ const types = {
     return: new (require('./event/return.js'))(),
     save: new (require('./event/save.js'))(),
     select: new (require('./event/select.js'))(),
+    sell: new (require('./event/sell.js'))(),
     statistics: new (require('./event/statistics.js'))(),
 };
 
