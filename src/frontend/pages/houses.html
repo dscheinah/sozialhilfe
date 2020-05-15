@@ -21,6 +21,7 @@
     import {action, helper, state} from '../js/lib/sx.js';
     import {cards, images} from '../js/mapping.js';
 
+    let bidReady = false;
     const render = (player) => {
         let houses = helper.element('#houses-houses'), contract = helper.element('#houses-contract');
         if (!player || !contract || !houses) {
@@ -67,6 +68,7 @@
                 houses.appendChild(houseElement);
             }
             button.style.display = player.name === name ? 'block' : null;
+            button.disabled = !bidReady;
             let houseChildren = Array.from(list.children), houseLength = houseChildren.length;
             house.forEach((card, index) => {
                 let li = houseChildren[index], img;
@@ -94,6 +96,16 @@
     state.handle('sx-show-houses', (payload, next) => {
         render(state.get('houses'));
         return next(payload);
+    });
+    state.listen('actions', () => {
+        bidReady = true;
+        helper.elements('#houses-houses button').forEach(button => button.disabled = false);
+    })
+    state.listen('sell', (payload) => {
+        if (payload) {
+            bidReady = false;
+            helper.elements('#houses-houses button').forEach(button => button.disabled = true);
+        }
     });
 
     action.listen('#houses-houses button', 'click', (e) => {
