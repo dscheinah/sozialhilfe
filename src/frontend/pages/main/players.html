@@ -48,17 +48,31 @@
             if (player.owner) {
                 rows.members.innerHTML = `<th>Klienten</th><td>${player.members}</td>`;
             }
-            item.innerHTML = `<strong>${player.name}</strong>`;
+            if (player.balanced) {
+                let title = `Der Spieler setzt mit einer Wahrscheinlichkeit von ${player.balanced}% eine Runde aus.`;
+                if (player.owner) {
+                    title += ' Mit dieser Wahrscheinlichkeit erhält er auch keine Versicherungsbeiträge.';
+                }
+                item.innerHTML = `<strong title="${title}">${player.name}</strong>`;
+                if (player.balanced < 50) {
+                    item.classList.add('main-players-balanced-low');
+                } else {
+                    item.classList.add('main-players-balanced');
+                }
+            } else {
+                item.innerHTML = `<strong>${player.name}</strong>`;
+            }
             item.dataset.player = player.name;
             item.appendChild(table);
             houses.dataset.player = JSON.stringify({
                 name: player.name,
                 private: player.warnPrivate,
+                balanced: player.warnPrivateBalanced,
                 insurance: player.warnInsurance,
                 contract: player.contract,
                 houses: player.houses,
             });
-            if (player.houses.length || player.contract.length || player.warnPrivate || player.warnInsurance) {
+            if (player.houses.length || player.contract.length || player.warnPrivate || player.warnInsurance || player.warnPrivateBalanced) {
                 houses.innerText = `Eigentum ${player.houses.length}${player.contract.length ? '+' : ''}`;
                 if (player.warnPrivate || player.warnInsurance) {
                     houses.dataset.warn = '1';
@@ -124,5 +138,13 @@
     content: "\26a0";
     position: absolute;
     left: 15px;
+  }
+
+  .main-players-balanced-low {
+    background: rgba(255, 0, 0, .05);
+  }
+
+  .main-players-balanced {
+    background: rgba(255, 0, 0, .1);
   }
 </style>

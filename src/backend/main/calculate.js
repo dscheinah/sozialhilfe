@@ -157,7 +157,7 @@ module.exports = class Calculate extends Game.Base {
         }
         let taxCount = state.pool.getTaxCount(this.cards.length);
         if (this.winner.private) {
-            if (state.housesForPrivateOk(this.winner.name)) {
+            if (state.housesForPrivateOk(this.winner.name, true)) {
                 return;
             }
             taxCount += 2;
@@ -226,7 +226,7 @@ module.exports = class Calculate extends Game.Base {
         if (!owner) {
             return;
         }
-        let houseDifference = this.winner.houses.length - owner.houses.length;
+        let houseDifference = this.winner.houses.length - owner.houses.length, balanced = state.isBalanced(owner.name);
         let cards = [];
         this.insurance = {
             name: insurance.name,
@@ -239,12 +239,22 @@ module.exports = class Calculate extends Game.Base {
                 let card = this.cards[i];
                 if (card.card === tax && !card.tax) {
                     card.tax = true;
-                    this.insurance.taxes.push({
-                        card: card.card,
-                        player: card.player.name,
-                        contract: owner.canContract(card.card),
-                    });
-                    this.insurance.cards.push(card.card);
+                    if (balanced) {
+                        this.taxes.push({
+                            card: card.card,
+                            balanced: card.balanced,
+                            player: card.player.name,
+                        });
+                        this.taxCards.push(card.card);
+                    } else {
+                        this.insurance.taxes.push({
+                            card: card.card,
+                            balanced: card.balanced,
+                            player: card.player.name,
+                            contract: owner.canContract(card.card),
+                        });
+                        this.insurance.cards.push(card.card);
+                    }
                     return;
                 }
             }
@@ -252,12 +262,14 @@ module.exports = class Calculate extends Game.Base {
     }
 
     calculateProfit() {
+        let balanced = this.winner && state.isBalanced(this.winner.name);
         this.cards.forEach((card) => {
             if (!card.tax) {
-                if (!this.winner) {
+                if (!this.winner || balanced) {
                     card.tax = true;
                     this.taxes.push({
                         card: card.card,
+                        balanced: card.balanced,
                         player: card.player.name,
                     });
                     this.taxCards.push(card.card);
@@ -274,12 +286,18 @@ module.exports = class Calculate extends Game.Base {
     }
 
     createCard(player) {
-        let card = player.drawCard();
+        let balanced = state.isBalanced(player.name), card;
+        if (balanced) {
+            card = state.pool.drawBalancingReplacement();
+        } else {
+            card = player.drawCard();
+        }
         if (!card) {
             return null;
         }
         return {
             card: card,
+            balanced: balanced,
             player: player,
             tax: false,
         };
@@ -296,6 +314,7 @@ module.exports = class Calculate extends Game.Base {
                 card.tax = true;
                 this.taxes.push({
                     card: card.card,
+                    balanced: card.balanced,
                     player: card.player.name,
                 });
                 this.taxCards.push(tax);

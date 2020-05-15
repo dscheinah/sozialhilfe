@@ -5,6 +5,10 @@
       <p id="houses-warn-private" class="houses-hidden sx-error">
         Der Spieler besitzt weniger Häuser als andere, nicht privat versicherte Spieler und muss daher Steuern zahlen.
       </p>
+      <p id="houses-warn-balanced" class="houses-hidden">
+        Der Spieler besitzt zwar weniger Häuser als andere, nicht privat versicherte Spieler, ist aber aufgrund der
+        unterschiedlichen Spielzeit nicht von den zusätzlichen Steuern betroffen.
+      </p>
       <p id="houses-warn-insurance" class="houses-hidden sx-error">
         Ein Klient des Versicherungsunternehmens besitzt mehr Häuser als der Leiter der Versicherung.
       </p>
@@ -29,6 +33,7 @@
         }
         helper.set('#houses-player', 'innerText', player.name);
         helper.style('#houses-warn-private', 'display', player.private ? 'block' : null);
+        helper.style('#houses-warn-balanced', 'display', player.balanced && !player.private ? 'block' : null);
         helper.style('#houses-warn-insurance', 'display', player.insurance ? 'block' : null);
         let contractChildren = Array.from(contract.children), contractLength = contractChildren.length;
         player.contract.forEach((card, index) => {

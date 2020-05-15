@@ -30,17 +30,7 @@ module.exports = class Pool {
 
     drawPlayerBase() {
         if (this.cards.length < this.cardsPerPlayer + this.level * 15) {
-            let newCards = [];
-            for (let card in this.baseSet) {
-                let amount = this.baseSet[card];
-                for (let i = 0; i < amount; i++) {
-                    newCards.push(parseInt(card));
-                }
-                this.currentSet[card] += amount;
-            }
-            shuffle(newCards);
-            this.cards = [...newCards, ...this.cards];
-            this.level++;
+            this.levelUp();
         }
         return this.drawCards(this.cardsPerPlayer);
     }
@@ -49,6 +39,27 @@ module.exports = class Pool {
         let cards = this.cards.splice(-amount, amount);
         cards.forEach(card => this.currentSet[card]--);
         return cards;
+    }
+
+    drawBalancingReplacement() {
+        if (this.cards.length < this.level * 15) {
+            this.levelUp();
+        }
+        return this.drawCards(1).pop();
+    }
+
+    levelUp() {
+        let newCards = [];
+        for (let card in this.baseSet) {
+            let amount = this.baseSet[card];
+            for (let i = 0; i < amount; i++) {
+                newCards.push(parseInt(card));
+            }
+            this.currentSet[card] += amount;
+        }
+        shuffle(newCards);
+        this.cards = [...newCards, ...this.cards];
+        this.level++;
     }
 
     returnCards(cards, noDowngrade) {

@@ -20,6 +20,7 @@ class State {
     insurances = {};
     insuranceToCreate;
     bid;
+    balanced = {};
 
     constructor() {
         if (!fs.existsSync(file)) {
@@ -234,16 +235,25 @@ class State {
         return opponent;
     }
 
-    housesForPrivateOk(name) {
+    housesForPrivateOk(name, balance) {
         let check = this.players[name];
-        if (!check) {
+        if (!check || !check.private) {
             return true;
         }
         let ok = true, length = check.houses.length;
         this.getActivePlayers().forEach((player) => {
-            if (!player.private && player.houses.length > length) {
-                ok = false;
+            let current = player.houses.length;
+            if (player.private || current <= length) {
+                return;
             }
+            if (balance) {
+                let diff = this.getRoundDifference(player.name);
+                if (current - (diff / 45) > length) {
+                    ok = false;
+                }
+                return;
+            }
+            ok = false;
         });
         return ok;
     }
@@ -384,6 +394,39 @@ class State {
         return bids.splice(-2, 2);
     }
 
+    isBalanced(name) {
+        if (this.balanced[name]) {
+            return true;
+        }
+        let current = this.players[name];
+        if (!current || current.ai) {
+            return false;
+        }
+        let diff = this.getRoundDifference(name) / 130;
+        if (diff < .1) {
+            return false;
+        }
+        if (Math.random() + diff > 1) {
+            this.balanced[name] = true;
+            return true;
+        }
+        return false;
+    }
+
+    getRoundDifference(name) {
+        let current = this.players[name];
+        if (!current) {
+            return 0;
+        }
+        let min = current.rounds;
+        this.getActivePlayers().forEach((player) => {
+            if (player.rounds < min) {
+                min = player.rounds;
+            }
+        });
+        return Math.max(0, current.rounds - min);
+    }
+
     commit() {
         for (let name in this.players) {
             let player = this.players[name];
@@ -441,6 +484,7 @@ class State {
             this.insurances[this.insuranceToCreate.name] = this.insuranceToCreate;
             this.insuranceToCreate = null;
         }
+        this.balanced = {};
         fs.writeFile(file, JSON.stringify(this), noop);
     }
 }

@@ -129,6 +129,10 @@
                         name.classList.add('main-game-winner');
                         name.title = 'Dieser Spieler hat die Runde gewonnen.';
                     }
+                    if (card.balanced) {
+                        name.classList.add('main-game-balanced');
+                        name.title = 'Dieser Spieler wurde aufgrund der unterschiedlichen Spielzeit zu anderen Spielern für diese Runde vom Staat vertreten.';
+                    }
                     li.appendChild(name);
                     li.dataset.card = card.player;
                     list.appendChild(li);
@@ -330,5 +334,9 @@
     content: "\1f3c6";
     color: gold;
     margin-right: .5em;
+  }
+
+  .main-game-balanced {
+    text-decoration: line-through solid #738995 !important;
   }
 </style>
