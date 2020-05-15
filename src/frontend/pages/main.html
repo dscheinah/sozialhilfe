@@ -72,6 +72,9 @@
     state.listen('donate', (payload) => {
         if (!payload.hidden) {
             let calculate = state.get('calculate');
+            if (!calculate) {
+                return;
+            }
             calculate.profit.forEach((card) => {
                 let index = payload.cards.indexOf(card.card);
                 if (index >= 0) {
@@ -85,6 +88,9 @@
     });
     state.listen('save', (payload) => {
         let calculate = state.get('calculate');
+        if (!calculate) {
+            return;
+        }
         calculate.profit.forEach((card) => {
             let index = payload.cards.indexOf(card.card);
             if (index >= 0) {
@@ -100,6 +106,9 @@
             return;
         }
         let calculate = state.get('calculate');
+        if (!calculate) {
+            return;
+        }
         calculate.profit.forEach(card => card.mark = 'Gründung');
         calculate.mark = true;
         state.set('calculate', calculate);
@@ -109,6 +118,9 @@
             return;
         }
         let calculate = state.get('calculate'), base;
+        if (!calculate) {
+            return;
+        }
         switch (payload.type) {
             case 'profit':
                 base = calculate.profit;
