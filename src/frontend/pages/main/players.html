@@ -61,6 +61,8 @@
                 }
             } else {
                 item.innerHTML = `<strong>${player.name}</strong>`;
+                item.classList.remove('main-players-balanced-low');
+                item.classList.remove('main-players-balanced');
             }
             item.dataset.player = player.name;
             item.appendChild(table);
