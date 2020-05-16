@@ -1,3 +1,5 @@
+const average = require('average');
+
 const contractBase = {
     1: 0,
     2: 1,
@@ -192,5 +194,17 @@ module.exports = class Player {
 
     roundPlayed() {
         this.rounds++;
+    }
+
+    getScore() {
+        let score = this.cards.length;
+        if (score) {
+            score += average(this.cards) * 10;
+        }
+        score += this.rounds / 100;
+        this.houses.forEach((house) => {
+            score += house.reduce((x, y) => x + y, 0) / house.length * 2;
+        });
+        return score > 9999 ? 9999 : Math.round(score);
     }
 };

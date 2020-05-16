@@ -394,22 +394,18 @@ class State {
     }
 
     isBalanced(name) {
-        if (this.balanced[name]) {
-            return true;
+        if (this.balanced[name] !== undefined) {
+            return this.balanced[name];
         }
         let current = this.players[name];
         if (!current || current.ai) {
-            return false;
+            return this.balanced[name] = false;
         }
         let diff = this.getRoundDifference(name) / 130;
         if (diff < .1) {
-            return false;
+            return this.balanced[name] = false;
         }
-        if (Math.random() + diff > 1) {
-            this.balanced[name] = true;
-            return true;
-        }
-        return false;
+        return this.balanced[name] = Math.random() + diff > 1;
     }
 
     getRoundDifference(name) {
@@ -417,9 +413,9 @@ class State {
         if (!current) {
             return 0;
         }
-        let min = current.rounds;
+        let min = current.rounds, score = current.getScore();
         this.getActivePlayers().forEach((player) => {
-            if (player.rounds < min) {
+            if (player.name !== name && player.rounds < min && player.getScore() < score) {
                 min = player.rounds;
             }
         });
