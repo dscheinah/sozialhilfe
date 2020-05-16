@@ -33,6 +33,7 @@ module.exports = class Prepare extends Game.Base {
         } else if (!helpActive) {
             state.pool.restoreTaxes();
         }
+        state.roundPlayed();
         refresh(['statistics', 'players', 'insurances']);
         if (!state.pool.cards.length) {
             broadcast({type: 'finish', payload: true});

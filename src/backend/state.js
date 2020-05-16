@@ -124,7 +124,6 @@ class State {
     }
 
     setOpenCards(profit, taxes, insurance) {
-        this.round++;
         this.openProfit = profit;
         this.openTaxes = taxes;
         this.openInsurance = insurance;
@@ -425,6 +424,15 @@ class State {
             }
         });
         return Math.max(0, current.rounds - min);
+    }
+
+    roundPlayed() {
+        this.round++;
+        this.getPreparedPlayers().forEach((player) => {
+           if (!this.isBalanced(player.name)) {
+               player.roundPlayed();
+           }
+        });
     }
 
     commit() {

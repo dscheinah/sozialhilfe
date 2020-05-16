@@ -65,7 +65,6 @@ module.exports = class Player {
     }
 
     setPrepared() {
-        this.rounds++;
         this.prepared = true;
     }
 
@@ -189,5 +188,9 @@ module.exports = class Player {
             return false;
         }
         return this.contract.reduce((length, card) => length + contractBase[card], 0) === 16;
+    }
+
+    roundPlayed() {
+        this.rounds++;
     }
 };
