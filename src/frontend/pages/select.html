@@ -3,7 +3,8 @@
     <div class="sx-overlay-content">
       <h2>Wähle die Reihenfolge deiner Karten</h2>
       <p>
-        Benutze Drag & Drop, um die als nächstes aufgedeckte Karte ganz rechts zu positionieren.<br/>
+        Benutze Drag & Drop oder abwechselndes Antippen, um die als nächstes aufgedeckte Karte ganz rechts zu
+        positionieren.<br/>
         Beachte, dass im Fall eines Stichs die zweite Karte nicht zum Gewinnen relevant ist.
       </p>
       <ul id="select-list" class="sx-flex-list sx-card-list sx-drag-list"></ul>
@@ -70,20 +71,20 @@
         e.preventDefault();
         helper.elements('.sx-drag-over').forEach(element => element.classList.remove('sx-drag-over'));
     };
+    const selectCardElement = (element) => {
+        while (!element.dataset.card) {
+            element = element.parentNode;
+        }
+        return element;
+    };
     let source, target;
     action.listen('#select-list li', 'dragstart', (e) => {
-        source = e.target;
-        while (!source.dataset.card) {
-            source = source.parentNode;
-        }
+        source = selectCardElement(e.target);
     });
     action.listen('#select-list li', 'dragover', (e) => {
         resetDrag(e);
         e.dataTransfer.dropEffect = 'move';
-        target = e.target;
-        while (!target.dataset.card) {
-            target = target.parentNode;
-        }
+        target = selectCardElement(e.target);
         target.classList.add('sx-drag-over');
     });
     action.listen('#select-list li', 'drop', (e) => {
@@ -94,4 +95,21 @@
     });
     action.listen('#select-list li', 'dragleave', resetDrag);
     action.listen('#select-list li', 'dragend', resetDrag);
+
+    let clicked;
+    action.listen('#select-list li', 'click', (e) => {
+        let target = selectCardElement(e.target);
+        if (clicked) {
+            clicked.classList.remove('sx-change-source');
+            if (target !== clicked) {
+                target.parentNode.insertBefore(clicked.cloneNode(true), target);
+                clicked.parentNode.insertBefore(target, clicked);
+                clicked.parentNode.removeChild(clicked);
+            }
+            clicked = null;
+        } else {
+            clicked = target;
+            clicked.classList.add('sx-change-source');
+        }
+    });
 </script>

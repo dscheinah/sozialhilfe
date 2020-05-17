@@ -20,7 +20,8 @@
         <label for="insurance-amount">Beiträge in Prozent (die Anzahl der Karten wird mathematisch gerundet)</label>
       </div>
       <p>
-        Bestimme per Drag & Drop, in welcher Reihenfolge die Beiträge aus dem Gewinn gewählt werden sollen.<br/>
+        Bestimme per Drag & Drop oder abwechselndem Antippen, in welcher Reihenfolge die Beiträge aus dem Gewinn gewählt
+        werden sollen.<br/>
         Die erste Karte wird auch als erstes ausgewählt.
       </p>
       <ul id="insurance-priority" class="sx-flex-list sx-card-list sx-drag-list"></ul>
@@ -153,20 +154,20 @@
         e.preventDefault();
         helper.elements('.sx-drag-over').forEach(element => element.classList.remove('sx-drag-over'));
     };
+    const selectCardElement = (element) => {
+        while (!element.dataset.card) {
+            element = element.parentNode;
+        }
+        return element;
+    };
     let source, target;
     action.listen('#insurance-priority li', 'dragstart', (e) => {
-        source = e.target;
-        while (!source.dataset.card) {
-            source = source.parentNode;
-        }
+        source = selectCardElement(e.target);
     });
     action.listen('#insurance-priority li', 'dragover', (e) => {
         resetDrag(e);
         e.dataTransfer.dropEffect = 'move';
-        target = e.target;
-        while (!target.dataset.card) {
-            target = target.parentNode;
-        }
+        target = selectCardElement(e.target);
         target.classList.add('sx-drag-over');
     });
     action.listen('#insurance-priority li', 'drop', (e) => {
@@ -177,6 +178,23 @@
     });
     action.listen('#insurance-priority li', 'dragleave', resetDrag);
     action.listen('#insurance-priority li', 'dragend', resetDrag);
+
+    let clicked;
+    action.listen('#insurance-priority li', 'click', (e) => {
+        let target = selectCardElement(e.target);
+        if (clicked) {
+            clicked.classList.remove('sx-change-source');
+            if (target !== clicked) {
+                target.parentNode.insertBefore(clicked.cloneNode(true), target);
+                clicked.parentNode.insertBefore(target, clicked);
+                clicked.parentNode.removeChild(clicked);
+            }
+            clicked = null;
+        } else {
+            clicked = target;
+            clicked.classList.add('sx-change-source');
+        }
+    });
 </script>
 
 <style>

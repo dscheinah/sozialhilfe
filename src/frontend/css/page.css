@@ -177,6 +177,11 @@ label {
     opacity: .3;
 }
 
+.sx-change-source.sx-change-source {
+    margin-top: -.5em;
+    opacity: .7;
+}
+
 .sx-spinner {
     display: inline-block;
     border: 5px solid lightgray;
