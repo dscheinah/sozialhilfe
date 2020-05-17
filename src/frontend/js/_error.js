@@ -1,9 +1,9 @@
 (function () {
     var handler = function (error) {
         var message = error;
-        if (error instanceof Error) {
+        if (window.Error && error instanceof Error) {
             message = error.message;
-        } else if (error instanceof PromiseRejectionEvent) {
+        } else if (window.PromiseRejectionEvent && error instanceof PromiseRejectionEvent) {
             message = error.reason.message;
         }
         if (message.replace) {
