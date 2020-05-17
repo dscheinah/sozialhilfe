@@ -1,8 +1,8 @@
 <template>
   <div class="sx-overlay">
     <div class="sx-overlay-content">
-      <h2>Spende bestätigen</h2>
-      <p>Möchtest du die Spende annehmen?</p>
+      <h2>Spende</h2>
+      <p>Möchtest du die Spende von <span id="accept-player"></span> annehmen?</p>
       <ul id="accept-cards" class="sx-flex-list sx-card-list"></ul>
       <div class="sx-buttons">
         <button id="accept-yes">ja</button>
@@ -16,10 +16,10 @@
     import {action, helper, state} from '../js/lib/sx.js';
     import {images, cards as cardMapping} from '../js/mapping.js';
 
-    let cards = [];
+    let cards = [], player;
     const render = () => {
         let cardList = helper.element('#accept-cards');
-        if (!cardList) {
+        if (!cardList || !player) {
             return;
         }
         cardList.innerHTML = '';
@@ -31,6 +31,7 @@
             li.appendChild(img);
             cardList.appendChild(li);
         });
+        helper.set('#accept-player', 'innerText', player);
     };
 
     state.listen('donate', (payload) => {
@@ -38,6 +39,7 @@
             return;
         }
         cards = payload.cards;
+        player = payload.player;
         render();
     });
     state.handle('sx-show-accept', (payload, next) => {

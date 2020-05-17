@@ -2,6 +2,11 @@ h1, h2, h3 {
     margin-top: 0;
 }
 
+h2 {
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
 table {
     border-collapse: collapse;
     margin-bottom: 1em;
@@ -179,6 +184,7 @@ label {
 
 .sx-change-source.sx-change-source {
     margin-top: -.5em;
+    padding-bottom: .5em;
     opacity: .7;
 }
 

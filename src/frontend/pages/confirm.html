@@ -66,7 +66,7 @@
     };
 
     state.listen('bid', (payload) => {
-        if (payload) {
+        if (payload && payload.bid) {
             data = payload;
             render();
         }

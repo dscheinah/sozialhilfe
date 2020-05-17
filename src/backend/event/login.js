@@ -1,9 +1,10 @@
 module.exports = class Login extends require('../lib/handler.js') {
     handle(payload, client) {
         if (client && payload.password === process.env.PASSWORD) {
-            client.register(payload.name.substr(0, 20));
-            return true;
+            let name = payload.name.replace(/<[^>]+>/g, '');
+            client.register(name.substr(0, 12));
+            return name;
         }
-        return false;
+        return '';
     }
 };

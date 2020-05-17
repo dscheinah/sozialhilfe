@@ -13,6 +13,8 @@ module.exports = class Bid extends require('../lib/handler.js') {
                 bids: state.getBestBids(),
             };
         }
-        return false;
+        return {
+            player: client.player.name,
+        };
     }
 };

@@ -149,7 +149,7 @@
         if (ready) {
             let animations = [];
             helper.elements('#main [data-card]').forEach((card) => {
-                let animation = helper.create('div'), player = helper.element(`[data-player=${card.dataset.card}]`);
+                let animation = helper.create('div'), player = helper.element(`[data-player=X${card.dataset.card}]`);
                 if (!player) {
                     return;
                 }

@@ -6,9 +6,10 @@ const stack = new PageStack(), server = new Server(), store = new Store();
 
 state.set('player-name', store.load('player-name'));
 state.handle('login', async (payload) => {
-    if (await server.handle('login', payload)) {
-        store.save('player-name', payload.name);
-        state.set('player-name', payload.name);
+    let name = await server.handle('login', payload);
+    if (name) {
+        store.save('player-name', name);
+        state.set('player-name', name);
         return true;
     }
     return false;
@@ -250,7 +251,7 @@ state.listen('bid', (payload) => {
     if (payload.player === name) {
         stack.hide('bid');
     }
-    if (payload.bid.player === name) {
+    if (payload.bid && payload.bid.player === name) {
         state.dispatch('loading', false);
         stack.show('confirm');
     }

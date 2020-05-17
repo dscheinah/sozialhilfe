@@ -41,6 +41,9 @@
     import {action, helper, state} from '../../js/lib/sx.js';
     import {cards as cardMapping, images} from '../../js/mapping.js';
 
+    const privateError = 'Ein anderer Spieler war leider schneller, sodass du dich nicht privat versichern konntest.';
+    const balancedTitle = 'Der Spieler wurde aufgrund der unterschiedlichen Spielzeit zu anderen Spielern vom Staat vertreten.';
+
     const actionMapping = {
         'change': '#main-game-change',
         'contract': '#main-game-contract',
@@ -119,7 +122,7 @@
                 currentCards.forEach((card) => {
                     let li = helper.create('li'), img = helper.create('img'), name = helper.create('small');
                     img.src = images[card.card];
-                    img.width = 100;
+                    img.width = 80;
                     img.alt = cardMapping[card.card];
                     li.appendChild(img);
                     name.innerText = card.player;
@@ -127,11 +130,11 @@
                     name.classList.add('sx-text-center');
                     if (card.player === data.player) {
                         name.classList.add('main-game-winner');
-                        name.title = 'Dieser Spieler hat die Runde gewonnen.';
+                        name.title = 'Der Spieler hat die Runde gewonnen.';
                     }
                     if (card.balanced) {
                         name.classList.add('main-game-balanced');
-                        name.title = 'Dieser Spieler wurde aufgrund der unterschiedlichen Spielzeit zu anderen Spielern für diese Runde vom Staat vertreten.';
+                        name.title = balancedTitle;
                     }
                     li.appendChild(name);
                     li.dataset.card = card.player;
@@ -202,7 +205,7 @@
     state.listen('private', (payload) => {
         helper.set('#main-game-private', 'disabled', true);
         if (!payload) {
-            state.dispatch('message', 'Ein anderer Spieler war leider schneller, sodass du dich nicht privat versichern konntest.');
+            state.dispatch('message', privateError);
         }
     });
     state.listen('save', () => helper.set('#main-game-save', 'disabled', true));
@@ -287,8 +290,8 @@
   }
 
   .main-game-card-list {
-    margin: 5px 0 0;
-    min-height: 200px;
+    margin: 0;
+    min-height: 165px;
   }
 
   .main-game-card-list li {
@@ -298,7 +301,8 @@
 
   .main-game-card-list small {
     display: block;
-    width: 100px;
+    width: 80px;
+    line-height: 1.5;
   }
 
   .main-game-card-list [data-mark] img {
@@ -312,7 +316,7 @@
     right: 0;
     left: 0;
     text-align: center;
-    font-size: .8em;
+    font-size: .7em;
     text-transform: uppercase;
   }
 
@@ -327,7 +331,7 @@
   .main-game-winner.main-game-winner {
     font-weight: bold;
     margin-left: -.5em;
-    width: calc(100px + .5em);
+    width: calc(80px + .5em);
   }
 
   .main-game-winner:before {
@@ -336,7 +340,7 @@
     margin-right: .5em;
   }
 
-  .main-game-balanced {
-    text-decoration: line-through solid #738995 !important;
+  .main-game-balanced.main-game-balanced {
+    text-decoration: line-through solid #738995;
   }
 </style>

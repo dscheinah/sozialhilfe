@@ -62,14 +62,16 @@
                 button = houseElement.querySelector('button');
             } else {
                 houseElement = helper.create('li');
+                let wrapper = helper.create('div');
                 list = helper.create('ul');
                 list.classList.add('sx-flex-list');
                 list.classList.add('sx-card-list');
                 button = helper.create('button');
                 button.innerText = 'versteigern';
                 button.value = index;
-                houseElement.appendChild(list);
-                houseElement.appendChild(button);
+                wrapper.appendChild(list);
+                wrapper.appendChild(button);
+                houseElement.appendChild(wrapper);
                 houses.appendChild(houseElement);
             }
             button.style.display = player.name === name ? 'block' : null;
@@ -138,8 +140,13 @@
     content: "Der Spieler besitzt noch keine Häuser.";
   }
 
+  #houses-houses div {
+    margin: -1.5em 0 0 2em;
+  }
+
   #houses-houses button {
     display: none;
-    margin: -1em 0 1em 0;
+    margin: -1em 0 2em 0;
+    width: auto;
   }
 </style>
