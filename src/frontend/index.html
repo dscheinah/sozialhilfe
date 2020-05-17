@@ -27,8 +27,34 @@
         transition: opacity .5s, visibility .5s;
       }
 
+      .sx-overlay {
+        position: fixed;
+        background: rgba(255, 255, 255, .5);
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 30px;
+        z-index: 100;
+        overflow: auto;
+      }
+
+      .sx-overlay-content {
+        background: white;
+        box-shadow: 1px 4px 10px gray;
+        padding: 2em;
+        margin: 0 auto;
+        position: relative;
+        max-width: 1200px;
+        box-sizing: border-box;
+      }
+
       #sx-error {
         display: none;
+      }
+
+      .sx-error {
+        color: red;
       }
     </style>
     <link rel="prefetch" href="./img/7.jpg">
@@ -70,8 +96,8 @@
         <div class="sx-overlay-content" id="sx-error-message"></div>
       </div>
     </div>
-    <script src="js/_style.js" type="module"></script>
-    <script src="js/_error.js" type="module"></script>
+    <script src="js/_error.js"></script>
+    <script src="js/_style.js"></script>
     <script src="js/init.js" type="module"></script>
   </body>
 </html>

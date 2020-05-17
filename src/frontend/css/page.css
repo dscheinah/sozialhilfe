@@ -97,28 +97,6 @@ label {
     cursor: help;
 }
 
-.sx-overlay {
-    position: fixed;
-    background: rgba(255, 255, 255, .5);
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    padding: 30px;
-    z-index: 100;
-    overflow: auto;
-}
-
-.sx-overlay-content {
-    background: white;
-    box-shadow: 1px 4px 10px gray;
-    padding: 2em;
-    margin: 0 auto;
-    position: relative;
-    max-width: 1200px;
-    box-sizing: border-box;
-}
-
 .sx-overlay-close {
     color: #738995;
     position: absolute;
@@ -145,10 +123,6 @@ label {
 .sx-flex-list li {
     display: inline;
     margin: 0 1em 1em 0;
-}
-
-.sx-error {
-    color: red;
 }
 
 .sx-ellipsis {
