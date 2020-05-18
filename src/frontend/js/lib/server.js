@@ -1,9 +1,11 @@
 export default class Server {
-    waiting = {};
-    handles = [];
-    socket;
-    open = false;
-    listeners = {};
+    constructor() {
+        this.waiting = {};
+        this.handles = [];
+        this.socket = null;
+        this.open = false;
+        this.listeners = {};
+    }
 
     connect() {
         let url = new URL(window.location.href);

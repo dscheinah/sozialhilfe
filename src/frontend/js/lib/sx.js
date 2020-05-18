@@ -1,5 +1,7 @@
 class Action {
-    listeners = {};
+    constructor() {
+        this.listeners = {};
+    }
 
     listen(selector, type, callback) {
         if (!this.listeners[type]) {
@@ -72,7 +74,9 @@ class Helper {
 }
 
 class Loader {
-    promises = [];
+    constructor() {
+        this.promises = [];
+    }
 
     add(promise) {
         this.promises.push(promise);
@@ -91,9 +95,11 @@ class Loader {
 }
 
 class State {
-    state = {};
-    listeners = {};
-    handlers = {};
+    constructor() {
+        this.state = {};
+        this.listeners = {};
+        this.handlers = {};
+    }
 
     dispatch(name, payload) {
         if (!this.handlers[name]) {
@@ -156,8 +162,10 @@ export const loader = new Loader();
 export const state = new State();
 
 export class PageStack {
-    pages = {};
-    element;
+    constructor() {
+        this.pages = {};
+        this.element = null;
+    }
 
     add(page) {
         this.pages[page.id] = page;
@@ -189,11 +197,9 @@ export class PageStack {
 }
 
 export class Page {
-    id;
-    template;
-
     constructor(id) {
         this.id = id;
+        this.template = null;
     }
 
     async load() {
