@@ -1,10 +1,15 @@
+const state = require('../state.js');
+
 module.exports = class Login extends require('../lib/handler.js') {
     handle(payload, client) {
-        if (client && payload.password === process.env.PASSWORD) {
-            let name = payload.name.replace(/<[^>]+>/g, '');
-            client.register(name.substr(0, 12));
-            return name;
+        if (!client || payload.password !== process.env.PASSWORD) {
+            return false;
         }
-        return '';
+        let name = payload.name.replace(/<[^>]+>/g, '').substr(0, 12), player = state.players[name];
+        if (player && player.active) {
+            return '';
+        }
+        client.register(name);
+        return name;
     }
 };

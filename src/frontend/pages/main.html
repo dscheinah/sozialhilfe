@@ -149,7 +149,14 @@
         if (ready) {
             let animations = [];
             helper.elements('#main [data-card]').forEach((card) => {
-                let animation = helper.create('div'), player = helper.element(`[data-player=X${card.dataset.card}]`);
+                let animation = helper.create('div'), players = helper.elements('#main [data-player]'), player;
+                for (let i = players.length; i--;) {
+                    let current = players[i];
+                    if (current.dataset.player === card.dataset.card) {
+                        player = current;
+                        break;
+                    }
+                }
                 if (!player) {
                     return;
                 }

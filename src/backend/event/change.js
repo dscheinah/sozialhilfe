@@ -8,6 +8,7 @@ module.exports = class Change extends require('../lib/handler.js') {
         if (!payload) {
             let insurance = state.getInsurance(client.player.name);
             if (insurance) {
+                this.wait(insurance.members);
                 return {
                     player: client.player.name,
                     taxes: insurance.taxes,
@@ -18,6 +19,7 @@ module.exports = class Change extends require('../lib/handler.js') {
             let insurance = state.insurances[client.player.name];
             if (insurance) {
                 insurance.setTaxes(payload);
+                this.wait(insurance.members);
                 return {
                     insurance: insurance.name,
                     taxes: insurance.taxes,
@@ -30,5 +32,17 @@ module.exports = class Change extends require('../lib/handler.js') {
 
     events() {
         return ['insurances'];
+    }
+
+    wait(players) {
+        players.forEach((name) => {
+            let player = state.players[name];
+            if (!player) {
+                return;
+            }
+            if (player.prepared) {
+                player.wait(state.waitTimeout)
+            }
+        });
     }
 };

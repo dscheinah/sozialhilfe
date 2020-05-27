@@ -8,6 +8,7 @@
       <input type="password" name="password" id="login-password" required/>
       <label for="login-password">Server-Passwort</label>
       <input type="submit" value="anmelden"/>
+      <span id="login-duplicate" class="sx-error">Du bist bereits angemeldet...</span>
       <span id="login-error" class="sx-error">Das Passwort ist leider nicht korrekt.</span>
     </div>
   </form>
@@ -44,14 +45,22 @@
 
     state.listen('login', (success) => {
         state.dispatch('loading', false);
-        if (!success) {
+        helper.style('#login-error', 'opacity', 0);
+        helper.style('#login-duplicate', 'display', null);
+        if (success === false) {
             helper.style('#login-error', 'opacity', 1);
             helper.focus('#login-password');
+        } else if (!success) {
+            helper.style('#login-duplicate', 'display', 'block');
         }
     });
 </script>
 
 <style>
+  #login-duplicate {
+    display: none;
+  }
+
   #login-error {
     opacity: 0;
   }

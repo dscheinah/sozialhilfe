@@ -39,7 +39,7 @@
     import {action, helper, state} from '../js/lib/sx.js';
     import {cards, images} from '../js/mapping.js';
 
-    let insurance = {taxes: {}}, create = null;
+    let insurance = {taxes: {amount: 0.4}}, create = null;
     const render = () => {
         let priorityList = helper.element('#insurance-priority'), cardList = helper.element('#insurance-cards');
         let amount = helper.element('#insurance-amount');
@@ -90,7 +90,7 @@
         if (insurance.sell) {
             helper.set('#insurance-sell', 'checked', true);
         }
-        helper.set('#insurance-amount', 'value', insurance.taxes.amount || 0.4);
+        helper.set('#insurance-amount', 'value', insurance.taxes.amount);
         helper.set('#insurance-amount-peek', 'innerText', amount.value * 100);
     };
 

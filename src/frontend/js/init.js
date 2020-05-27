@@ -10,9 +10,8 @@ state.handle('login', async (payload) => {
     if (name) {
         store.save('player-name', name);
         state.set('player-name', name);
-        return true;
     }
-    return false;
+    return name;
 });
 
 [
@@ -223,6 +222,7 @@ state.listen('change', (data) => {
         stack.hide('insurance');
     }
     if (data.player === name || (data.members && data.members.indexOf(name) >= 0)) {
+        state.dispatch('loading', false);
         stack.show('changed');
     }
 });

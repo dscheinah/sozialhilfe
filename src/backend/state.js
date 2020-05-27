@@ -278,11 +278,11 @@ class State {
             return false;
         }
         let reference = player.houses.length, over = 0;
-        for (let key in this.players) {
-            if (this.players[key].houses.length >= reference) {
+        this.getActivePlayers().forEach((current) => {
+            if (current.houses.length >= reference) {
                 over++;
             }
-        }
+        });
         return over >= 2;
     }
 
