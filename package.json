@@ -21,7 +21,7 @@
     "minimist": "^1.2.6",
     "node-static": "^0.7.11",
     "shuffle-array": "^1.0.1",
-    "ws": "^7.4.6"
+    "ws": "^7.5.10"
   },
   "resolutions": {
     "minimist": "1.2.6"
