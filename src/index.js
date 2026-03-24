@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const version = 'v1.0b';
 
-const frontend = new (require('node-static').Server)(__dirname + '/frontend');
+const frontend = new (require('@node-static/node-static').Server)(__dirname + '/frontend');
 
 const server = require('http').createServer(function (request, response) {
     frontend.serve(request, response);
